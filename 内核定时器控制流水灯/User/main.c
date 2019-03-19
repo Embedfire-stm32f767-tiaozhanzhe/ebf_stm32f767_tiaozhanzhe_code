@@ -4,7 +4,7 @@
   * @author  fire
   * @version V1.0
   * @date    2016-xx-xx
-  * @brief   使用SysTick进行精确延时
+  * @brief   使用DWT进行精确延时
   ******************************************************************************
   * @attention
   *
@@ -18,7 +18,7 @@
 #include "stm32f7xx.h"
 #include "main.h"
 #include "./led/bsp_led.h"
-#include "./systick/bsp_SysTick.h"
+#include "./dwt_delay/core_delay.h"  
  
 
 /**
@@ -30,12 +30,12 @@ int main(void)
 {
     /* 系统时钟初始化成216 MHz */
     SystemClock_Config();
+    
 	/* LED 端口初始化 */
 	LED_GPIO_Config();
-  /* 配置SysTick 为10us中断一次,时间到后触发定时中断，
-	*进入stm32f7xx_it.c文件的SysTick_Handler处理，通过数中断次数计时
-	*/
-	SysTick_Init();
+    
+  /* 配置内核定时器 */ 
+	CPU_TS_TmrInit();
   
 	while(1)
 	{
