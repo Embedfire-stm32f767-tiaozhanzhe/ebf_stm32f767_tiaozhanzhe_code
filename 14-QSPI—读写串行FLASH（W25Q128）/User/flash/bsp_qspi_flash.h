@@ -8,7 +8,8 @@
 //#define  sFLASH_ID                       0xEF3015     //W25X16
 //#define  sFLASH_ID                       0xEF4015	    //W25Q16
 //#define  sFLASH_ID                       0XEF4017     //W25Q64
-#define  sFLASH_ID                         0XEF4018     //W25Q128
+//#define  sFLASH_ID                       0XEF4018     //W25Q128
+#define  sFLASH_ID                         0XEF4019     //W25Q256
 
 /* QSPI Error codes */
 #define QSPI_OK            ((uint8_t)0x00)
