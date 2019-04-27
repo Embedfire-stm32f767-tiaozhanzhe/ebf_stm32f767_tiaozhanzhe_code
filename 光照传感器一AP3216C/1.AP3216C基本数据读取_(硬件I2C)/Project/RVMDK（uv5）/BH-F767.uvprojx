@@ -48,7 +48,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>..\..\Output\</OutputDirectory>
-          <OutputName>MPU6050</OutputName>
+          <OutputName>AP3216C</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -750,9 +750,9 @@
               <FilePath>..\..\User\flash\bsp_qspi_flash.c</FilePath>
             </File>
             <File>
-              <FileName>mpu6050.c</FileName>
+              <FileName>ap3216c.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\User\mpu6050\mpu6050.c</FilePath>
+              <FilePath>..\..\User\ap3216c\ap3216c.c</FilePath>
             </File>
             <File>
               <FileName>i2c.c</FileName>
