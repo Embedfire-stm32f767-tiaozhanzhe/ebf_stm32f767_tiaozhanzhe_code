@@ -288,8 +288,8 @@ static void SDRAM_InitSequence(void)
 /* Step 8 --------------------------------------------------------------------*/
 
   /* 设置刷新计数器 */
-  /* (15.62 us x Freq) - 20 */
-	  /* Step 6: Set the refresh rate counter */
+  /* (7.8125 us x Freq) - 20 */
+	/* Step 6: Set the refresh rate counter */
   /* Set the device refresh rate */
   HAL_SDRAM_ProgramRefreshRate(&sdramHandle, 824); 
 //  FMC_SetRefreshCount(1386);
