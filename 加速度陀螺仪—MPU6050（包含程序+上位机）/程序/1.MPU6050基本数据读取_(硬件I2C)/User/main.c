@@ -23,7 +23,7 @@
 #include "./i2c/i2c.h"
 #include "./mpu6050/mpu6050.h"
 //设置是否使用LCD进行显示，不需要的话把这个宏注释掉即可
-#define USE_LCD_DISPLAY
+//#define USE_LCD_DISPLAY
 
 #ifdef USE_LCD_DISPLAY
  #include "./lcd/bsp_lcd.h"
@@ -86,7 +86,7 @@ int main(void)
 
 	printf("\r\n 欢迎使用秉火  STM32 F767 开发板。\r\n");		 
 
-	printf("\r\n 这是一个I2C外设(MPU6050)读写测试例程 \r\n");
+	printf("\r\n 这是一个硬件I2C外设(MPU6050)读写测试例程 \r\n");
 
  	//MPU6050初始化
 	MPU6050_Init();
