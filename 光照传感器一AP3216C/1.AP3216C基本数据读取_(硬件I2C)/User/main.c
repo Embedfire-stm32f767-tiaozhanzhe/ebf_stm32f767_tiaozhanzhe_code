@@ -4,7 +4,7 @@
   * @author  fire
   * @version V1.0
   * @date    2016-xx-xx
-  * @brief   RTC—闹钟实验
+  * @brief   AP3216C测试程序
   ******************************************************************************
   * @attention
   *
@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include "main.h"
 #include "./i2c/i2c.h"
-#include "./mpu6050/mpu6050.h"
+#include "./ap3216c/ap3216c.h"
 //设置是否使用LCD进行显示，不需要的话把这个宏注释掉即可
 //#define USE_LCD_DISPLAY
 
@@ -38,9 +38,9 @@ uint32_t Task_Delay[NumOfTask]={0};
   */
 int main(void)
 {
-	static short Acel[3];
-	static short Gyro[3];
-	static float Temp;
+	static uint16_t ALSValue;
+//    static uint16_t PSValue;
+//    static uint16_t IRValue;
 	
     /* 系统时钟初始化成216 MHz */
     SystemClock_Config();
@@ -86,13 +86,13 @@ int main(void)
 
 	printf("\r\n 欢迎使用秉火  STM32 F767 开发板。\r\n");		 
 
-	printf("\r\n 这是一个硬件I2C外设(MPU6050)读写测试例程 \r\n");
+	printf("\r\n 这是一个硬件I2C外设(AP3216C)读写测试例程 \r\n");
 
  	//MPU6050初始化
-	MPU6050_Init();
+	AP3216C_Init();
 	
 	//检测MPU6050
-	if (MPU6050ReadID() == 1)
+	if (1)
 	{	
 		while(1)
 		{
@@ -104,12 +104,12 @@ int main(void)
 			
 			if(Task_Delay[1]==0)
 			{
-				MPU6050ReadAcc(Acel);
-				printf("加速度：%8d%8d%8d",Acel[0],Acel[1],Acel[2]);
-				MPU6050ReadGyro(Gyro);
-				printf("    陀螺仪%8d%8d%8d",Gyro[0],Gyro[1],Gyro[2]);
-				MPU6050_ReturnTemp(&Temp);
-				printf("    温度%8.2f\r\n",Temp);				
+				AP3216CReadALS(&ALSValue);
+				printf("光强：%dlux",ALSValue);
+//				MPU6050ReadGyro(Gyro);
+//				printf("    陀螺仪%8d%8d%8d",Gyro[0],Gyro[1],Gyro[2]);
+//				MPU6050_ReturnTemp(&Temp);
+//				printf("    温度%8.2f\r\n",Temp);				
 				
 				
 				#ifdef USE_LCD_DISPLAY	
@@ -146,7 +146,7 @@ int main(void)
 	}
 	else
 	{
-			printf("\r\n没有检测到MPU6050传感器！\r\n");
+			printf("\r\n没有检测到AP3216C传感器！\r\n");
 			LED_RED; 
 			#ifdef USE_LCD_DISPLAY			
 				/*设置字体颜色及字体的背景颜色*/
