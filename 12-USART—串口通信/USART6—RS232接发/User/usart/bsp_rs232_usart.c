@@ -4,7 +4,7 @@
   * @author  fire
   * @version V1.0
   * @date    2016-xx-xx
-  * @brief   使用串口2，重定向c库printf函数到usart端口，中断接收模式
+  * @brief   使用串口6，重定向c库printf函数到usart端口，中断接收模式
   ******************************************************************************
   * @attention
   *
@@ -40,7 +40,7 @@ void RS232_USART_Config(void)
     /* 使能 UART 时钟 */
     RS232_USART_CLK_ENABLE();
 
-    /**USART2 GPIO Configuration    
+    /**USART6 GPIO Configuration    
     PD5    ------> USART2_TX
     PD6    ------> USART2_RX 
     */

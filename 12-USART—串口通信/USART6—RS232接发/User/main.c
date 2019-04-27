@@ -45,7 +45,7 @@ int main(void)
 	Usart_SendString( RS232_USART, (uint8_t *)"自定义函数输出：这是一个串口中断接收回显实验\n" );
 	Usart_SendString( RS232_USART, (uint8_t *)"输入数据并以回车键结束\n" );
 	
-	/*STM32串口接收到字符后会进入stm32f4xx_it.c文件的中断服务函数，
+	/*STM32串口接收到字符后会进入stm32f7xx_it.c文件的中断服务函数，
 	*接收该数据，并标记Rxflag标志位。*/
 
   while(1)

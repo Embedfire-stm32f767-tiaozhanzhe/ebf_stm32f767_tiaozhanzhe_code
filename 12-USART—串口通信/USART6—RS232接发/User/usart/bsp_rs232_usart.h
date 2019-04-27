@@ -8,25 +8,25 @@
 
 //Òý½Å¶¨Òå
 /*******************************************************/
-#define RS232_USART                             USART2
-#define RS232_USART_CLK_ENABLE()                __USART2_CLK_ENABLE();
+#define RS232_USART                             USART6
+#define RS232_USART_CLK_ENABLE()                __USART6_CLK_ENABLE();
 
-#define RCC_PERIPHCLK_UARTx               RCC_PERIPHCLK_USART2
-#define RCC_UARTxCLKSOURCE_SYSCLK         RCC_USART2CLKSOURCE_SYSCLK
+#define RCC_PERIPHCLK_UARTx               RCC_PERIPHCLK_USART6
+#define RCC_UARTxCLKSOURCE_SYSCLK         RCC_USART6CLKSOURCE_SYSCLK
 
-#define RS232_USART_RX_GPIO_PORT                GPIOD
-#define RS232_USART_RX_GPIO_CLK_ENABLE()        __HAL_RCC_GPIOD_CLK_ENABLE()
-#define RS232_USART_RX_PIN                      GPIO_PIN_6
-#define RS232_USART_RX_AF                       GPIO_AF7_USART2
+#define RS232_USART_RX_GPIO_PORT                GPIOC
+#define RS232_USART_RX_GPIO_CLK_ENABLE()        __HAL_RCC_GPIOC_CLK_ENABLE()
+#define RS232_USART_RX_PIN                      GPIO_PIN_7
+#define RS232_USART_RX_AF                       GPIO_AF8_USART6
 
 
-#define RS232_USART_TX_GPIO_PORT                GPIOD
-#define RS232_USART_TX_GPIO_CLK_ENABLE()        __HAL_RCC_GPIOD_CLK_ENABLE()
-#define RS232_USART_TX_PIN                      GPIO_PIN_5
-#define RS232_USART_TX_AF                       GPIO_AF7_USART2
+#define RS232_USART_TX_GPIO_PORT                GPIOC
+#define RS232_USART_TX_GPIO_CLK_ENABLE()        __HAL_RCC_GPIOC_CLK_ENABLE()
+#define RS232_USART_TX_PIN                      GPIO_PIN_6
+#define RS232_USART_TX_AF                       GPIO_AF8_USART6
 
-#define RS232_USART_IRQHandler                  USART2_IRQHandler
-#define RS232_USART_IRQ                 		USART2_IRQn
+#define RS232_USART_IRQHandler                  USART6_IRQHandler
+#define RS232_USART_IRQ                 		USART6_IRQn
 /************************************************************/
 
 
