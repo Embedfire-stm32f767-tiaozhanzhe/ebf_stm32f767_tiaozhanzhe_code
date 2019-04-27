@@ -12,7 +12,8 @@
 //#define  sFLASH_ID                       0xEF3015     //W25X16
 //#define  sFLASH_ID                       0xEF4015	    //W25Q16
 //#define  sFLASH_ID                       0XEF4017     //W25Q64
-#define  sFLASH_ID                         0XEF4018     //W25Q128
+//#define  sFLASH_ID                       0XEF4018     //W25Q128
+#define  sFLASH_ID                         0XEF4019     //W25Q256
 
 /* QSPI Error codes */
 #define QSPI_OK            ((uint8_t)0x00)
@@ -23,9 +24,9 @@
 
 
 
-/* W25Q128FV Micron memory */
+/* W25Q256JV Micron memory */
 /* Size of the flash */
-#define QSPI_FLASH_SIZE            23     /* Address bus width to access whole memory space */
+#define QSPI_FLASH_SIZE            24     /* Address bus width to access whole memory space */
 #define QSPI_PAGE_SIZE             256
 
 /* QSPI Info */
@@ -40,22 +41,22 @@ typedef struct {
 /* Private define ------------------------------------------------------------*/
 /*命令定义-开头*******************************/
 /** 
-  * @brief  W25Q128FV Configuration  
+  * @brief  W25Q256JV Configuration  
   */  
-#define W25Q128FV_FLASH_SIZE                  0x1000000 /* 128 MBits => 16MBytes */
-#define W25Q128FV_SECTOR_SIZE                 0x10000   /* 256 sectors of 64KBytes */
-#define W25Q128FV_SUBSECTOR_SIZE              0x1000    /* 4096 subsectors of 4kBytes */
-#define W25Q128FV_PAGE_SIZE                   0x100     /* 65536 pages of 256 bytes */
+#define W25Q256JV_FLASH_SIZE                  0x2000000 /* 256 MBits => 32MBytes */
+#define W25Q256JV_SECTOR_SIZE                 0x10000   /* 256 sectors of 64KBytes */
+#define W25Q256JV_SUBSECTOR_SIZE              0x1000    /* 4096 subsectors of 4kBytes */
+#define W25Q256JV_PAGE_SIZE                   0x100     /* 65536 pages of 256 bytes */
 
-#define W25Q128FV_DUMMY_CYCLES_READ           4
-#define W25Q128FV_DUMMY_CYCLES_READ_QUAD      10
+#define W25Q256JV_DUMMY_CYCLES_READ           4
+#define W25Q256JV_DUMMY_CYCLES_READ_QUAD      10
 
-#define W25Q128FV_BULK_ERASE_MAX_TIME         250000
-#define W25Q128FV_SECTOR_ERASE_MAX_TIME       3000
-#define W25Q128FV_SUBSECTOR_ERASE_MAX_TIME    800
+#define W25Q256JV_BULK_ERASE_MAX_TIME         250000
+#define W25Q256JV_SECTOR_ERASE_MAX_TIME       3000
+#define W25Q256JV_SUBSECTOR_ERASE_MAX_TIME    800
 
 /** 
-  * @brief  W25Q128FV Commands  
+  * @brief  W25Q256JV Commands  
   */  
 /* Reset Operations */
 #define RESET_ENABLE_CMD                     0x66
@@ -104,11 +105,14 @@ typedef struct {
 #define PROG_ERASE_RESUME_CMD                0x7A
 #define PROG_ERASE_SUSPEND_CMD               0x75
 
+/* 4字节地址模式操作 */
+#define ENTER_4_BYTE_ADDR_MODE_CMD           0xB7
+#define EXIT_4_BYTE_ADDR_MODE_CMD            0xE9
 
 /* Flag Status Register */
-#define W25Q128FV_FSR_BUSY                    ((uint8_t)0x01)    /*!< busy */
-#define W25Q128FV_FSR_WREN                    ((uint8_t)0x02)    /*!< write enable */
-#define W25Q128FV_FSR_QE                      ((uint8_t)0x02)    /*!< quad enable */
+#define W25Q256JV_FSR_BUSY                    ((uint8_t)0x01)    /*!< busy */
+#define W25Q256JV_FSR_WREN                    ((uint8_t)0x02)    /*!< write enable */
+#define W25Q256JV_FSR_QE                      ((uint8_t)0x02)    /*!< quad enable */
 /*命令定义-结尾*******************************/
 
 
@@ -141,10 +145,10 @@ typedef struct {
 #define QSPI_FLASH_BK1_IO3_CLK_ENABLE()    __HAL_RCC_GPIOF_CLK_ENABLE()
 #define QSPI_FLASH_BK1_IO3_AF              GPIO_AF9_QUADSPI
 
-#define QSPI_FLASH_CS_PIN                 GPIO_PIN_6               
+#define QSPI_FLASH_CS_PIN                 GPIO_PIN_10               
 #define QSPI_FLASH_CS_GPIO_PORT           GPIOB                   
 #define QSPI_FLASH_CS_GPIO_CLK_ENABLE()   __HAL_RCC_GPIOB_CLK_ENABLE()
-#define QSPI_FLASH_CS_GPIO_AF             GPIO_AF10_QUADSPI
+#define QSPI_FLASH_CS_GPIO_AF             GPIO_AF9_QUADSPI
 
 
 
@@ -153,7 +157,7 @@ uint8_t BSP_QSPI_Init(void);
 uint8_t BSP_QSPI_Erase_Block(uint32_t BlockAddress);
 uint8_t BSP_QSPI_Read(uint8_t* pData, uint32_t ReadAddr, uint32_t Size);
 uint8_t BSP_QSPI_Write(uint8_t* pData, uint32_t WriteAddr, uint32_t Size);
-
+static uint8_t BSP_QSPI_4BYTE_ADDR_MOD(void);
 
 static uint8_t QSPI_ResetMemory          (void);
 static uint8_t QSPI_WriteEnable          (void);
@@ -174,7 +178,8 @@ uint8_t BSP_QSPI_GetStatus(void);
 //#define  sFLASH_ID                        0xEF3015     //W25X16
 //#define  sFLASH_ID                        0xEF4015	   //W25Q16
 //#define  sFLASH_ID                        0XEF4017     //W25Q64
-#define  sFLASH_ID                          0XEF4018     //W25Q128
+//#define  sFLASH_ID                       0XEF4018     //W25Q128
+#define  sFLASH_ID                         0XEF4019     //W25Q256
 
 /* Private typedef -----------------------------------------------------------*/
 //#define SPI_FLASH_PageSize                4096
@@ -296,21 +301,21 @@ DRESULT TM_FATFS_FLASH_SPI_disk_ioctl(BYTE lun,BYTE cmd, void *buff) ;
 DRESULT TM_FATFS_FLASH_SPI_disk_read(BYTE lun,BYTE *buff, DWORD sector, UINT count) ;
 DRESULT TM_FATFS_FLASH_SPI_disk_write(BYTE lun,const BYTE *buff, DWORD sector, UINT count) ;
 
-void SPI_FLASH_SectorErase(u32 SectorAddr);
+void SPI_FLASH_SectorErase(uint32_t SectorAddr);
 void SPI_FLASH_BulkErase(void);
-void SPI_FLASH_PageWrite(u8* pBuffer, u32 WriteAddr, u16 NumByteToWrite);
-void SPI_FLASH_BufferWrite(u8* pBuffer, u32 WriteAddr, u16 NumByteToWrite);
-void SPI_FLASH_BufferRead(u8* pBuffer, u32 ReadAddr, uint32_t NumByteToRead);
-u32 SPI_FLASH_ReadID(void);
-u32 SPI_FLASH_ReadDeviceID(void);
-void SPI_FLASH_StartReadSequence(u32 ReadAddr);
+void SPI_FLASH_PageWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite);
+void SPI_FLASH_BufferWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite);
+void SPI_FLASH_BufferRead(uint8_t* pBuffer, uint32_t ReadAddr, uint32_t NumByteToRead);
+uint32_t SPI_FLASH_ReadID(void);
+uint32_t SPI_FLASH_ReadDeviceID(void);
+void SPI_FLASH_StartReadSequence(uint32_t ReadAddr);
 void SPI_Flash_PowerDown(void);
 void SPI_Flash_WAKEUP(void);
 
 
-u8 SPI_FLASH_ReadByte(void);
-u8 SPI_FLASH_SendByte(u8 byte);
-u16 SPI_FLASH_SendHalfWord(u16 HalfWord);
+uint8_t SPI_FLASH_ReadByte(void);
+uint8_t SPI_FLASH_SendByte(uint8_t byte);
+uint16_t SPI_FLASH_SendHalfWord(uint16_t HalfWord);
 void SPI_FLASH_WriteEnable(void);
 void SPI_FLASH_WaitForWriteEnd(void);
 
