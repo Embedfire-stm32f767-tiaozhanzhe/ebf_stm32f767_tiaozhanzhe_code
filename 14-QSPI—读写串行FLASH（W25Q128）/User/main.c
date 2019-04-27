@@ -70,9 +70,9 @@ int main(void)
 	/* 配置串口1为：115200 8-N-1 */
 	DEBUG_USART_Config();
   
-	printf("\r\n这是一个16M串行flash(W25Q128)实验(QSPI驱动) \r\n");
+	printf("\r\n这是一个32M串行flash(W25Q256)实验(QSPI驱动) \r\n");
 	
-	/* 16M串行flash W25Q128初始化 */
+	/* 16M串行flash W25Q256初始化 */
 	QSPI_FLASH_Init();
 	
 	/* 获取 Flash Device ID */
@@ -88,7 +88,7 @@ int main(void)
 	/* 检验 SPI Flash ID */
 	if (FlashID == sFLASH_ID) 
 	{	
-		printf("\r\n检测到QSPI FLASH W25Q128 !\r\n");
+		printf("\r\n检测到QSPI FLASH W25Q256 !\r\n");
 		
 		/* 擦除将要写入的 QSPI FLASH 扇区，FLASH写入前要先擦除 */
 		BSP_QSPI_Erase_Block(FLASH_SectorToErase);	 	 
@@ -107,18 +107,18 @@ int main(void)
 		if( PASSED == TransferStatus1 )
 		{    
 			LED_GREEN;
-			printf("\r\n16M串行flash(W25Q128)测试成功!\n\r");
+			printf("\r\n32M串行flash(W25Q256)测试成功!\n\r");
 		}
 		else
 		{        
 			LED_RED;
-			printf("\r\n16M串行flash(W25Q128)测试失败!\n\r");
+			printf("\r\n32M串行flash(W25Q256)测试失败!\n\r");
 		}
 	}// if (FlashID == sFLASH_ID)
 	else
 	{    
 		LED_RED;
-		printf("\r\n获取不到 W25Q128 ID!\n\r");
+		printf("\r\n获取不到 W25Q256 ID!\n\r");
 	}
 	
 	while(1);  
