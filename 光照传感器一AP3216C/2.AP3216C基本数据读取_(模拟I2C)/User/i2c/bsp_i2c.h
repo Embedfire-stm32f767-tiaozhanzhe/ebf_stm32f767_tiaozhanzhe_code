@@ -3,29 +3,29 @@
 
 #include "stm32f7xx.h"
 
-/*设定的MPU6050 IIC设备地址*/
-#define MPU6050_ADDR              0xD0
+/*设定的AP3216C IIC设备地址*/
+#define AP3216C_ADDR              0x3C
 
 #define I2CT_FLAG_TIMEOUT         ((uint32_t)0x1000)
 #define I2CT_LONG_TIMEOUT         ((uint32_t)(10 * I2CT_FLAG_TIMEOUT))
 
 /*I2C引脚*/
-#define MPU6050_I2C_SCL_PIN                  GPIO_PIN_6                 
-#define MPU6050_I2C_SCL_GPIO_PORT            GPIOB                       
-#define MPU6050_I2C_SCL_GPIO_CLK_ENABLE()    __GPIOB_CLK_ENABLE()
+#define AP3216C_I2C_SCL_PIN                  GPIO_PIN_6                 
+#define AP3216C_I2C_SCL_GPIO_PORT            GPIOB                       
+#define AP3216C_I2C_SCL_GPIO_CLK_ENABLE()    __GPIOB_CLK_ENABLE()
 
-#define MPU6050_I2C_SDA_PIN                  GPIO_PIN_7                 
-#define MPU6050_I2C_SDA_GPIO_PORT            GPIOB                    
-#define MPU6050_I2C_SDA_GPIO_CLK_ENABLE()    __GPIOB_CLK_ENABLE()
+#define AP3216C_I2C_SDA_PIN                  GPIO_PIN_7                 
+#define AP3216C_I2C_SDA_GPIO_PORT            GPIOB                    
+#define AP3216C_I2C_SDA_GPIO_CLK_ENABLE()    __GPIOB_CLK_ENABLE()
 
 //软件IIC使用的宏
-#define I2C_SCL_1()  HAL_GPIO_WritePin(MPU6050_I2C_SCL_GPIO_PORT, MPU6050_I2C_SCL_PIN,GPIO_PIN_SET)		/* SCL = 1 */
-#define I2C_SCL_0()  HAL_GPIO_WritePin(MPU6050_I2C_SCL_GPIO_PORT, MPU6050_I2C_SCL_PIN,GPIO_PIN_RESET)		/* SCL = 0 */
+#define I2C_SCL_1()  HAL_GPIO_WritePin(AP3216C_I2C_SCL_GPIO_PORT, AP3216C_I2C_SCL_PIN,GPIO_PIN_SET)		/* SCL = 1 */
+#define I2C_SCL_0()  HAL_GPIO_WritePin(AP3216C_I2C_SCL_GPIO_PORT, AP3216C_I2C_SCL_PIN,GPIO_PIN_RESET)		/* SCL = 0 */
 
-#define I2C_SDA_1()  HAL_GPIO_WritePin(MPU6050_I2C_SDA_GPIO_PORT, MPU6050_I2C_SDA_PIN,GPIO_PIN_SET)		/* SDA = 1 */
-#define I2C_SDA_0()  HAL_GPIO_WritePin(MPU6050_I2C_SDA_GPIO_PORT, MPU6050_I2C_SDA_PIN,GPIO_PIN_RESET)		/* SDA = 0 */
+#define I2C_SDA_1()  HAL_GPIO_WritePin(AP3216C_I2C_SDA_GPIO_PORT, AP3216C_I2C_SDA_PIN,GPIO_PIN_SET)		/* SDA = 1 */
+#define I2C_SDA_0()  HAL_GPIO_WritePin(AP3216C_I2C_SDA_GPIO_PORT, AP3216C_I2C_SDA_PIN,GPIO_PIN_RESET)		/* SDA = 0 */
 
-#define I2C_SDA_READ()  HAL_GPIO_ReadPin(MPU6050_I2C_SDA_GPIO_PORT, MPU6050_I2C_SDA_PIN)	/* 读SDA口线状态 */
+#define I2C_SDA_READ()  HAL_GPIO_ReadPin(AP3216C_I2C_SDA_GPIO_PORT, AP3216C_I2C_SDA_PIN)	/* 读SDA口线状态 */
 
 /*信息输出*/
 #define I2C_DEBUG_ON         1

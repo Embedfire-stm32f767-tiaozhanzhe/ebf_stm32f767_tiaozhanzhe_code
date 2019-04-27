@@ -4,7 +4,7 @@
   * @author  STMicroelectronics
   * @version V1.0
   * @date    2015-xx-xx
-  * @brief   i2c EEPROM(MPU6050)应用函数bsp
+  * @brief   i2c EEPROM(AP3216C)应用函数bsp
   ******************************************************************************
   * @attention
   *
@@ -28,18 +28,18 @@ static void I2C_GPIO_Config(void)
   GPIO_InitTypeDef GPIO_InitStructure;  
   
   /*使能触摸屏使用的引脚的时钟*/
-  MPU6050_I2C_SCL_GPIO_CLK_ENABLE();
-  MPU6050_I2C_SDA_GPIO_CLK_ENABLE(); 
+  AP3216C_I2C_SCL_GPIO_CLK_ENABLE();
+  AP3216C_I2C_SDA_GPIO_CLK_ENABLE(); 
     /*配置SCL引脚 */   
-  GPIO_InitStructure.Pin = MPU6050_I2C_SCL_PIN;
+  GPIO_InitStructure.Pin = AP3216C_I2C_SCL_PIN;
   GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_OD;
   GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
   GPIO_InitStructure.Pull  = GPIO_NOPULL;
-  HAL_GPIO_Init(MPU6050_I2C_SCL_GPIO_PORT, &GPIO_InitStructure);
+  HAL_GPIO_Init(AP3216C_I2C_SCL_GPIO_PORT, &GPIO_InitStructure);
 
   /*配置SDA引脚 */
-  GPIO_InitStructure.Pin = MPU6050_I2C_SDA_PIN;
-  HAL_GPIO_Init(MPU6050_I2C_SCL_GPIO_PORT, &GPIO_InitStructure);
+  GPIO_InitStructure.Pin = AP3216C_I2C_SDA_PIN;
+  HAL_GPIO_Init(AP3216C_I2C_SCL_GPIO_PORT, &GPIO_InitStructure);
 
 }
 
@@ -369,7 +369,7 @@ cmd_fail: /* 命令执行失败后，切记发送停止信号，避免影响I2C总线上其他设备 */
 }
 
 /**
-  * @brief   写数据到MPU6050寄存器
+  * @brief   写数据到AP3216C寄存器
   * @param   reg_add:寄存器地址
 	* @param reg_data:要写入的数据
   * @retval  
@@ -382,7 +382,7 @@ uint32_t Sensor_write(uint8_t reg_add,uint8_t reg_dat)
 	i2c_Start();
 
 	/* 第2步：发起控制字节，高7bit是地址，bit0是读写控制位，0表示写，1表示读 */
-	i2c_SendByte(MPU6050_ADDR | I2C_DIR_WR);	/* 此处是写指令 */
+	i2c_SendByte(AP3216C_ADDR | I2C_DIR_WR);	/* 此处是写指令 */
 
 	/* 第3步：发送一个时钟，判断器件是否正确应答 */
 	if (i2c_WaitAck() != 0)
@@ -417,7 +417,7 @@ cmd_fail: /* 命令执行失败后，切记发送停止信号，避免影响I2C总线上其他设备 */
 }
 
 /**
-  * @brief   写数据到MPU6050寄存器
+  * @brief   写数据到AP3216C寄存器
   * @param   reg_add:寄存器地址
 	* @param reg_data:要写入的数据
   * @retval  
@@ -429,7 +429,7 @@ uint32_t Sensor_Read(uint8_t reg_add,unsigned char* Read,uint8_t num)
 	/* 第1步：发起I2C总线启动信号 */
 	i2c_Start();
 	/* 第2步：发起控制字节，高7bit是地址，bit0是读写控制位，0表示写，1表示读 */
-	i2c_SendByte(MPU6050_ADDR | I2C_DIR_WR);	/* 此处是写指令 */
+	i2c_SendByte(AP3216C_ADDR | I2C_DIR_WR);	/* 此处是写指令 */
 	/* 第3步：发送一个时钟，判断器件是否正确应答 */
 	if (i2c_WaitAck() != 0)
 	{
@@ -449,7 +449,7 @@ uint32_t Sensor_Read(uint8_t reg_add,unsigned char* Read,uint8_t num)
 	i2c_Start();
 	
 	/* 第7步：发起控制字节，高7bit是地址，bit0是读写控制位，0表示写，1表示读 */
-	i2c_SendByte(MPU6050_ADDR | I2C_DIR_RD);	/* 此处是读指令 */
+	i2c_SendByte(AP3216C_ADDR | I2C_DIR_RD);	/* 此处是读指令 */
 
 	/* 第8步：检查ACK */
 	if (i2c_WaitAck() != 0)

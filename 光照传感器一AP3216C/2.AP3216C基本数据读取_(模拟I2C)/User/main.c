@@ -4,7 +4,7 @@
   * @author  fire
   * @version V1.0
   * @date    2016-xx-xx
-  * @brief   MPU6050读写实验
+  * @brief   AP3216C测试程序
   ******************************************************************************
   * @attention
   *
@@ -21,8 +21,7 @@
 #include <stdlib.h>
 #include "main.h"
 #include "./i2c/bsp_i2c.h"
-#include "./mpu6050/mpu6050.h"
-
+#include "./ap3216c/ap3216c.h"
 //设置是否使用LCD进行显示，不需要的话把这个宏注释掉即可
 //#define USE_LCD_DISPLAY
 
@@ -39,14 +38,19 @@ uint32_t Task_Delay[NumOfTask]={0};
   */
 int main(void)
 {
-	static short Acel[3];
-	static short Gyro[3];
-	static float Temp;
+	static uint16_t ALS_RAW;
+  static uint16_t PS_RAW;
+  static uint16_t IR_RAW;
+  
+  float ALSValue;
+//  float PSValue;
+//  float IRValue;
 	
     /* 系统时钟初始化成216 MHz */
     SystemClock_Config();
     /* LED 端口初始化 */
     LED_GPIO_Config();
+	
 #ifdef USE_LCD_DISPLAY		
     /* LCD 端口初始化 */ 
     LCD_Init();
@@ -66,7 +70,7 @@ int main(void)
     /* 选择LCD第二层 */
     LCD_SelectLayer(1);
 
-    /* 第二层清屏，显示全黑 */ 
+    /* 第二层清屏，显示透明 */ 
     LCD_Clear(LCD_COLOR_TRANSPARENT);
 
     /* 配置第一和第二层的透明度,最小值为0，最大值为255*/
@@ -75,6 +79,8 @@ int main(void)
 	
 	/* 选择LCD第一层 */
     LCD_SelectLayer(0);
+	/*设置字体颜色及字体的背景颜色*/
+	LCD_SetColors(LCD_COLOR_RED,LCD_COLOR_BLACK);	
 #endif
   /*初始化USART1*/
 	DEBUG_USART_Config(); 
@@ -82,79 +88,62 @@ int main(void)
 	//初始化 I2C
 	I2C_Init(); 
 
-	printf("\r\n 欢迎使用秉火  STM32 F429 开发板。\r\n");		 
+	printf("\r\n 欢迎使用秉火  STM32 F767 开发板。\r\n");		 
 
-	printf("\r\n 这是一个I2C外设(MPU6050)基本数据读写测试例程 \r\n");
+	printf("\r\n 这是一个硬件I2C外设(AP3216C)读写测试例程 \r\n");
 
- 	 	//MPU6050初始化
-	MPU6050_Init();
+ 	//AP3216C初始化
+	AP3216C_Init();
+  
+  HAL_Delay(250);
 	
-	//检测MPU6050
-	if (MPU6050ReadID() == 1)
-	{	
-		while(1)
-		{
-			if(Task_Delay[0]==TASK_ENABLE)
-			{
-				LED2_TOGGLE;
-				Task_Delay[0]=1000;
-			}
-			
-			if(Task_Delay[1]==0)
-			{
-				MPU6050ReadAcc(Acel);
-				printf("加速度：%8d%8d%8d",Acel[0],Acel[1],Acel[2]);
-				MPU6050ReadGyro(Gyro);
-				printf("    陀螺仪%8d%8d%8d",Gyro[0],Gyro[1],Gyro[2]);
-				MPU6050_ReturnTemp(&Temp);
-				printf("    温度%8.2f\r\n",Temp);				
-				
-				
-				#ifdef USE_LCD_DISPLAY	
-					{
-						char cStr [ 70 ];
-						sprintf ( cStr, "Acceleration:%8d%8d%8d",Acel[0],Acel[1],Acel[2] );	//加速度原始数据
+  while(1)
+  {
+    if(Task_Delay[0]==TASK_ENABLE)
+    {
+      LED2_TOGGLE;
+      Task_Delay[0]=1000;
+    }
+    
+    if(Task_Delay[1]==0)
+    {
+      AP3216CReadALS(&ALS_RAW);
+      AP3216CReadPS(&PS_RAW);
+      AP3216CReadIR(&IR_RAW);
+      ALSValue = ALS_RAW * 0.36;// Lux = 16 bit ALS data * Resolution
+      printf("环境光：%.2flux ",ALSValue);
+      printf("接近值：%d ",PS_RAW);
+      printf("红外光：%d\r\n",IR_RAW);			
+      
+      
+      #ifdef USE_LCD_DISPLAY	
+        {
+          char cStr [ 70 ];
+          sprintf ( cStr, "ALS：%8.2flux",ALSValue);	//环境光数据
 
+          LCD_DisplayStringLine(7,(uint8_t* )cStr);			
 
-						LCD_DisplayStringLine(7,(uint8_t* )cStr);			
+          sprintf ( cStr, "PS ：%8d ",PS_RAW);	//接近值数据
 
-						sprintf ( cStr, "Gyro        :%8d%8d%8d",Gyro[0],Gyro[1],Gyro[2] );	//角原始数据
+          LCD_DisplayStringLine(8,(uint8_t* )cStr);			
 
-						LCD_DisplayStringLine(8,(uint8_t* )cStr);			
+          sprintf ( cStr, "IR ：%8d",IR_RAW);	//红外光
+          LCD_DisplayStringLine(9,(uint8_t* )cStr);			
 
-						sprintf ( cStr, "Temperture  :%8.2f",Temp );	//温度值
-						LCD_DisplayStringLine(9,(uint8_t* )cStr);			
+        }
+      #endif
+      
+      Task_Delay[1]=500; //更新一次数据，可根据自己的需求，提高采样频率，如100ms采样一次
+      
+    }
 
-					}
-				#endif
-				
-				Task_Delay[1]=500; //更新一次数据，可根据自己的需求，提高采样频率，如100ms采样一次
-				
-			}
+    //*************************************	下面是增加任务的格式************************************//
+//		if(Task_Delay[i]==0)
+//		{
+//			Task(i);
+//			Task_Delay[i]=;
+//		}
 
-			//*************************************	下面是增加任务的格式************************************//
-	//		if(Task_Delay[i]==0)
-	//		{
-	//			Task(i);
-	//			Task_Delay[i]=;
-	//		}
-
-		}
-
-	}
-	else
-	{
-			printf("\r\n没有检测到MPU6050传感器！\r\n");
-			LED_RED; 
-			#ifdef USE_LCD_DISPLAY			
-				/*设置字体颜色及字体的背景颜色*/
-				LCD_SetColors(LCD_COLOR_BLUE,LCD_COLOR_BLACK);	
-
-				LCD_DisplayStringLine(LINE(4),(uint8_t* )"No MPU6050 detected! ");			//野火自带的16*24显示
-				LCD_DisplayStringLine(LINE(5),(uint8_t* )"Please check the hardware connection! ");			//野火自带的16*24显示
-
-			#endif
-		while(1);	
 	}
 }
 
