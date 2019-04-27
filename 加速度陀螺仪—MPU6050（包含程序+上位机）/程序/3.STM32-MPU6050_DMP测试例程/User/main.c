@@ -24,7 +24,7 @@
 #include "./i2c/i2c.h"
 #include "./mpu6050/bsp_mpu_exti.h"
 //设置是否使用LCD进行显示，不需要的话把这个宏注释掉即可
-#define USE_LCD_DISPLAY
+//#define USE_LCD_DISPLAY
 
 #ifdef USE_LCD_DISPLAY
  #include "./lcd/bsp_lcd.h"
