@@ -10,13 +10,13 @@
 #define I2CT_LONG_TIMEOUT         ((uint32_t)(10 * I2CT_FLAG_TIMEOUT))
 
 /*I2C引脚*/
-#define MPU6050_I2C_SCL_PIN                  GPIO_PIN_12                 
-#define MPU6050_I2C_SCL_GPIO_PORT            GPIOD                       
-#define MPU6050_I2C_SCL_GPIO_CLK_ENABLE()    __GPIOD_CLK_ENABLE()
+#define MPU6050_I2C_SCL_PIN                  GPIO_PIN_6                 
+#define MPU6050_I2C_SCL_GPIO_PORT            GPIOB                       
+#define MPU6050_I2C_SCL_GPIO_CLK_ENABLE()    __GPIOB_CLK_ENABLE()
 
-#define MPU6050_I2C_SDA_PIN                  GPIO_PIN_13                 
-#define MPU6050_I2C_SDA_GPIO_PORT            GPIOD                    
-#define MPU6050_I2C_SDA_GPIO_CLK_ENABLE()    __GPIOD_CLK_ENABLE()
+#define MPU6050_I2C_SDA_PIN                  GPIO_PIN_7                 
+#define MPU6050_I2C_SDA_GPIO_PORT            GPIOB                    
+#define MPU6050_I2C_SDA_GPIO_CLK_ENABLE()    __GPIOB_CLK_ENABLE()
 
 //软件IIC使用的宏
 #define I2C_SCL_1()  HAL_GPIO_WritePin(MPU6050_I2C_SCL_GPIO_PORT, MPU6050_I2C_SCL_PIN,GPIO_PIN_SET)		/* SCL = 1 */
