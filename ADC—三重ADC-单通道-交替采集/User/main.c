@@ -19,7 +19,7 @@
 #include "./adc/bsp_adc.h"
 #include "./usart/bsp_usart.h"
 
-// ADC转换的电压值通过MDA方式传到SRAM
+// ADC转换的电压值通过DMA方式传到SRAM
 extern __IO uint16_t ADC_ConvertedValue[RHEOSTAT_NOFCHANEL];
 
 // 局部变量，用于保存转换计算后的电压值 	 
