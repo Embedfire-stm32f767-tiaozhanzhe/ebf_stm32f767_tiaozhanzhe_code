@@ -52,7 +52,7 @@ int main(void)
     /* 初始化串口 */
     DEBUG_USART_Config();
 
-    printf("\r\n秉火STM32F746 SDRAM 读写测试例程\r\n");
+    printf("\r\n秉火STM32F767 SDRAM 读写测试例程\r\n");
       
     /*初始化SDRAM模块*/
     SDRAM_Init();
