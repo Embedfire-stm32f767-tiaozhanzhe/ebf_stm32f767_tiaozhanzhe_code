@@ -38,9 +38,13 @@ uint32_t Task_Delay[NumOfTask]={0};
   */
 int main(void)
 {
-	static uint16_t ALSValue;
-//    static uint16_t PSValue;
-//    static uint16_t IRValue;
+	static uint16_t ALS_RAW;
+  static uint16_t PS_RAW;
+  static uint16_t IR_RAW;
+  
+  float ALSValue;
+//  float PSValue;
+//  float IRValue;
 	
     /* 系统时钟初始化成216 MHz */
     SystemClock_Config();
@@ -88,75 +92,58 @@ int main(void)
 
 	printf("\r\n 这是一个硬件I2C外设(AP3216C)读写测试例程 \r\n");
 
- 	//MPU6050初始化
+ 	//AP3216C初始化
 	AP3216C_Init();
+  
+  Delay(250);
 	
-	//检测MPU6050
-	if (1)
-	{	
-		while(1)
-		{
-			if(Task_Delay[0]==TASK_ENABLE)
-			{
-				LED2_TOGGLE;
-				Task_Delay[0]=1000;
-			}
-			
-			if(Task_Delay[1]==0)
-			{
-				AP3216CReadALS(&ALSValue);
-				printf("光强：%dlux",ALSValue);
-//				MPU6050ReadGyro(Gyro);
-//				printf("    陀螺仪%8d%8d%8d",Gyro[0],Gyro[1],Gyro[2]);
-//				MPU6050_ReturnTemp(&Temp);
-//				printf("    温度%8.2f\r\n",Temp);				
-				
-				
-				#ifdef USE_LCD_DISPLAY	
-					{
-						char cStr [ 70 ];
-						sprintf ( cStr, "Acceleration:%8d%8d%8d",Acel[0],Acel[1],Acel[2] );	//加速度原始数据
+  while(1)
+  {
+    if(Task_Delay[0]==TASK_ENABLE)
+    {
+      LED2_TOGGLE;
+      Task_Delay[0]=1000;
+    }
+    
+    if(Task_Delay[1]==0)
+    {
+      AP3216CReadALS(&ALS_RAW);
+      AP3216CReadPS(&PS_RAW);
+      AP3216CReadIR(&IR_RAW);
+      ALSValue = ALS_RAW * 0.36;// Lux = 16 bit ALS data * Resolution
+      printf("环境光：%.2flux ",ALSValue);
+      printf("接近值：%d ",PS_RAW);
+      printf("红外光：%d\r\n",IR_RAW);			
+      
+      
+      #ifdef USE_LCD_DISPLAY	
+        {
+          char cStr [ 70 ];
+          sprintf ( cStr, "ALS：%8.2flux",ALSValue);	//环境光数据
 
+          LCD_DisplayStringLine(7,(uint8_t* )cStr);			
 
-						LCD_DisplayStringLine(7,(uint8_t* )cStr);			
+          sprintf ( cStr, "PS ：%8d ",PS_RAW);	//接近值数据
 
-						sprintf ( cStr, "Gyro        :%8d%8d%8d",Gyro[0],Gyro[1],Gyro[2] );	//角原始数据
+          LCD_DisplayStringLine(8,(uint8_t* )cStr);			
 
-						LCD_DisplayStringLine(8,(uint8_t* )cStr);			
+          sprintf ( cStr, "IR ：%8d",IR_RAW);	//红外光
+          LCD_DisplayStringLine(9,(uint8_t* )cStr);			
 
-						sprintf ( cStr, "Temperture  :%8.2f",Temp );	//温度值
-						LCD_DisplayStringLine(9,(uint8_t* )cStr);			
+        }
+      #endif
+      
+      Task_Delay[1]=500; //更新一次数据，可根据自己的需求，提高采样频率，如100ms采样一次
+      
+    }
 
-					}
-				#endif
-				
-				Task_Delay[1]=500; //更新一次数据，可根据自己的需求，提高采样频率，如100ms采样一次
-				
-			}
+    //*************************************	下面是增加任务的格式************************************//
+//		if(Task_Delay[i]==0)
+//		{
+//			Task(i);
+//			Task_Delay[i]=;
+//		}
 
-			//*************************************	下面是增加任务的格式************************************//
-	//		if(Task_Delay[i]==0)
-	//		{
-	//			Task(i);
-	//			Task_Delay[i]=;
-	//		}
-
-		}
-
-	}
-	else
-	{
-			printf("\r\n没有检测到AP3216C传感器！\r\n");
-			LED_RED; 
-			#ifdef USE_LCD_DISPLAY			
-				/*设置字体颜色及字体的背景颜色*/
-				LCD_SetColors(LCD_COLOR_BLUE,LCD_COLOR_BLACK);	
-
-				LCD_DisplayStringLine(4,(uint8_t* )"No MPU6050 detected! ");			//野火自带的17*24显示
-				LCD_DisplayStringLine(5,(uint8_t* )"Please check the hardware connection! ");//野火自带的17*24显示
-
-			#endif
-		while(1);	
 	}
 }
 

@@ -39,7 +39,7 @@ void AP3216C_Init(void)
   AP3216C_WriteReg(AP3216C_SYS_CONFIG, 0x00);//关闭所有功能
   AP3216C_WriteReg(AP3216C_SYS_CONFIG, AP3216C_SW_RST_BIT);//复位
   Delay(10);//复位后一定要延时10ms，否则会出错
-  AP3216C_WriteReg(AP3216C_SYS_CONFIG, AP3216C_ALS_ACTIVE_BIT);//开启所有功能
+  AP3216C_WriteReg(AP3216C_SYS_CONFIG, AP3216C_ALS_PS_IR_ACTIVE_BIT);//开启所有功能
 }
 
 /**
