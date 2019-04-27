@@ -48,6 +48,7 @@ static void SDRAM_GPIO_Config(void)
   FMC_A3_GPIO_CLK;FMC_A4_GPIO_CLK;FMC_A5_GPIO_CLK;
   FMC_A6_GPIO_CLK; FMC_A7_GPIO_CLK; FMC_A8_GPIO_CLK;
   FMC_A9_GPIO_CLK; FMC_A10_GPIO_CLK;FMC_A11_GPIO_CLK; 
+  FMC_A12_GPIO_CLK;
   /*数据信号线*/
   FMC_D0_GPIO_CLK; FMC_D1_GPIO_CLK ; FMC_D2_GPIO_CLK ; 
   FMC_D3_GPIO_CLK ; FMC_D4_GPIO_CLK ; FMC_D5_GPIO_CLK ;
@@ -114,6 +115,9 @@ static void SDRAM_GPIO_Config(void)
   
   GPIO_InitStructure.Pin = FMC_A11_GPIO_PIN; 
   HAL_GPIO_Init(FMC_A11_GPIO_PORT, &GPIO_InitStructure);
+  
+  GPIO_InitStructure.Pin = FMC_A12_GPIO_PIN; 
+  HAL_GPIO_Init(FMC_A12_GPIO_PORT, &GPIO_InitStructure);
 
   
   
@@ -284,10 +288,10 @@ static void SDRAM_InitSequence(void)
 /* Step 8 --------------------------------------------------------------------*/
 
   /* 设置刷新计数器 */
-  /* (15.62 us x Freq) - 20 */
-	  /* Step 6: Set the refresh rate counter */
+  /* (7.8125 us x Freq) - 20 */
+	/* Step 6: Set the refresh rate counter */
   /* Set the device refresh rate */
-  HAL_SDRAM_ProgramRefreshRate(&sdramHandle, 1386); 
+  HAL_SDRAM_ProgramRefreshRate(&sdramHandle, 824); 
 //  FMC_SetRefreshCount(1386);
 //  /* 发送上述命令*/
 //  while(FMC_GetFlagStatus(FMC_BANK_SDRAM, FMC_FLAG_Busy) != RESET)
