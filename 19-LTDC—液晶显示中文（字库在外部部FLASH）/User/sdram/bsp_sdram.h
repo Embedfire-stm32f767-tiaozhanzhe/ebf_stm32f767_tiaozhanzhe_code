@@ -6,7 +6,7 @@
 
 
 
-#define IS42S16400J_SIZE 0x800000  //400000*16bits = 0x800000  ，8M字节
+#define W9825G6KH_SIZE 0x2000000  //2000000*16bits = 0x2000000  ，32M字节
 
 
 /*SDRAM 的bank选择*/  
@@ -155,6 +155,12 @@
 #define FMC_A11_GPIO_PIN         GPIO_PIN_1
 #define FMC_A11_PINSOURCE        GPIO_PinSource1
 #define FMC_A11_AF               GPIO_AF_FMC
+
+#define FMC_A12_GPIO_PORT        GPIOG
+#define FMC_A12_GPIO_CLK         __HAL_RCC_GPIOG_CLK_ENABLE()
+#define FMC_A12_GPIO_PIN         GPIO_PIN_2
+#define FMC_A12_PINSOURCE        GPIO_PinSource2
+#define FMC_A12_AF               GPIO_AF_FMC
 
 /*数据信号线*/
 #define FMC_D0_GPIO_PORT        GPIOD
@@ -317,7 +323,7 @@
 #define FMC_LDQM_AF               GPIO_AF_FMC
 
 
-/** @defgroup STM32429 SDRAM函数
+/** @defgroup STM32F767 SDRAM函数
   * @{
   */ 
 void  SDRAM_Init(void);
