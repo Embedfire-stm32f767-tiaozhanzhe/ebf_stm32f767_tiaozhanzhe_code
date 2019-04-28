@@ -8,7 +8,7 @@
   ******************************************************************************
   * @attention
   *
-  * 实验平台:秉火STM32 F429 开发板
+  * 实验平台:秉火STM32 F767 开发板
   * 论坛    :http://www.chuxue123.com
   * 淘宝    :http://firestm32.taobao.com
   *
@@ -83,7 +83,7 @@ void QSPI_FLASH_Init(void)
     hqspi.Init.ClockPrescaler = 2;
     hqspi.Init.FifoThreshold = 4;
     hqspi.Init.SampleShifting = QSPI_SAMPLE_SHIFTING_HALFCYCLE;
-    hqspi.Init.FlashSize = 23;
+    hqspi.Init.FlashSize = 24;
     hqspi.Init.ChipSelectHighTime = QSPI_CS_HIGH_TIME_8_CYCLE;
     hqspi.Init.ClockMode = QSPI_CLOCK_MODE_0;
     HAL_QSPI_Init(&hqspi);
@@ -93,13 +93,46 @@ void QSPI_FLASH_Init(void)
 
 
 /**
+  * @brief  设置QSPI存储器为4字节地址模式。
+  * @param  无
+  * @retval 无
+  */
+static uint8_t BSP_QSPI_4BYTE_ADDR_MOD(void)
+{
+	QSPI_CommandTypeDef s_command;
+	/* 初始化复位使能命令 */
+	s_command.InstructionMode   = QSPI_INSTRUCTION_1_LINE;
+	s_command.Instruction       = ENTER_4_BYTE_ADDR_MODE_CMD;
+	s_command.AddressMode       = QSPI_ADDRESS_NONE;
+	s_command.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
+	s_command.DataMode          = QSPI_DATA_NONE;
+	s_command.DummyCycles       = 0;
+	s_command.DdrMode           = QSPI_DDR_MODE_DISABLE;
+	s_command.DdrHoldHalfCycle  = QSPI_DDR_HHC_ANALOG_DELAY;
+	s_command.SIOOMode          = QSPI_SIOO_INST_EVERY_CMD;
+
+	/* 发送命令 */
+	if (HAL_QSPI_Command(&QSPIHandle, &s_command, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK)
+	{
+		return QSPI_ERROR;
+	}
+
+	/* 配置自动轮询模式等待存储器就绪 */  
+	if (QSPI_AutoPollingMemReady(HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != QSPI_OK)
+	{
+		return QSPI_ERROR;
+	}
+	return QSPI_OK;
+}
+
+/**
   * @brief  Initializes the QSPI interface.
   * @retval QSPI memory status
   */
 uint8_t BSP_QSPI_Init(void)
 { 
 	QSPI_CommandTypeDef s_command;
-	uint8_t value = W25Q128FV_FSR_QE;
+	uint8_t value = W25Q256JV_FSR_QE;
 	
   /* QSPI memory reset */
   if (QSPI_ResetMemory() != QSPI_OK)
@@ -107,6 +140,12 @@ uint8_t BSP_QSPI_Init(void)
     return QSPI_NOT_SUPPORTED;
   }
 	
+  /* 设置QSPI存储器为4字节地址模式 */
+	if (BSP_QSPI_4BYTE_ADDR_MOD() != QSPI_OK)
+	{
+		return QSPI_ERROR;
+	}
+  
 	/* Enable write operations */
 	if (QSPI_WriteEnable() != QSPI_OK)
 	{
@@ -136,7 +175,7 @@ uint8_t BSP_QSPI_Init(void)
   }
   
   /* automatic polling mode to wait for memory ready */  
-  if (QSPI_AutoPollingMemReady(W25Q128FV_SUBSECTOR_ERASE_MAX_TIME) != QSPI_OK)
+  if (QSPI_AutoPollingMemReady(W25Q256JV_SUBSECTOR_ERASE_MAX_TIME) != QSPI_OK)
   {
     return QSPI_ERROR;
   }
@@ -158,7 +197,7 @@ uint8_t BSP_QSPI_Read(uint8_t* pData, uint32_t ReadAddr, uint32_t Size)
   s_command.InstructionMode   = QSPI_INSTRUCTION_1_LINE;
   s_command.Instruction       = READ_CMD;
   s_command.AddressMode       = QSPI_ADDRESS_1_LINE;
-  s_command.AddressSize       = QSPI_ADDRESS_24_BITS;
+  s_command.AddressSize       = QSPI_ADDRESS_32_BITS;
   s_command.Address           = ReadAddr;
   s_command.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
   s_command.DataMode          = QSPI_DATA_1_LINE;
@@ -198,7 +237,7 @@ uint8_t BSP_QSPI_Write(uint8_t* pData, uint32_t WriteAddr, uint32_t Size)
 
   while (current_addr <= WriteAddr)
   {
-    current_addr += W25Q128FV_PAGE_SIZE;
+    current_addr += W25Q256JV_PAGE_SIZE;
   }
   current_size = current_addr - WriteAddr;
 
@@ -216,7 +255,7 @@ uint8_t BSP_QSPI_Write(uint8_t* pData, uint32_t WriteAddr, uint32_t Size)
   s_command.InstructionMode   = QSPI_INSTRUCTION_1_LINE;
   s_command.Instruction       = QUAD_INPUT_PAGE_PROG_CMD;
   s_command.AddressMode       = QSPI_ADDRESS_1_LINE;
-  s_command.AddressSize       = QSPI_ADDRESS_24_BITS;
+  s_command.AddressSize       = QSPI_ADDRESS_32_BITS;
   s_command.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
   s_command.DataMode          = QSPI_DATA_4_LINES;
   s_command.DummyCycles       = 0;
@@ -257,7 +296,7 @@ uint8_t BSP_QSPI_Write(uint8_t* pData, uint32_t WriteAddr, uint32_t Size)
     /* Update the address and size variables for next page programming */
     current_addr += current_size;
     pData += current_size;
-    current_size = ((current_addr + W25Q128FV_PAGE_SIZE) > end_addr) ? (end_addr - current_addr) : W25Q128FV_PAGE_SIZE;
+    current_size = ((current_addr + W25Q256JV_PAGE_SIZE) > end_addr) ? (end_addr - current_addr) : W25Q256JV_PAGE_SIZE;
   } while (current_addr < end_addr);
   return QSPI_OK;
 }
@@ -274,7 +313,7 @@ uint8_t BSP_QSPI_Erase_Block(uint32_t BlockAddress)
   s_command.InstructionMode   = QSPI_INSTRUCTION_1_LINE;
   s_command.Instruction       = SECTOR_ERASE_CMD;
   s_command.AddressMode       = QSPI_ADDRESS_1_LINE;
-  s_command.AddressSize       = QSPI_ADDRESS_24_BITS;
+  s_command.AddressSize       = QSPI_ADDRESS_32_BITS;
   s_command.Address           = BlockAddress;
   s_command.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
   s_command.DataMode          = QSPI_DATA_NONE;
@@ -296,7 +335,7 @@ uint8_t BSP_QSPI_Erase_Block(uint32_t BlockAddress)
   }
   
   /* Configure automatic polling mode to wait for end of erase */  
-  if (QSPI_AutoPollingMemReady(W25Q128FV_SUBSECTOR_ERASE_MAX_TIME) != QSPI_OK)
+  if (QSPI_AutoPollingMemReady(W25Q256JV_SUBSECTOR_ERASE_MAX_TIME) != QSPI_OK)
   {
     return QSPI_ERROR;
   }
@@ -334,7 +373,7 @@ uint8_t BSP_QSPI_Erase_Chip(void)
   }
   
   /* Configure automatic polling mode to wait for end of erase */  
-  if (QSPI_AutoPollingMemReady(W25Q128FV_BULK_ERASE_MAX_TIME) != QSPI_OK)
+  if (QSPI_AutoPollingMemReady(W25Q256JV_BULK_ERASE_MAX_TIME) != QSPI_OK)
   {
     return QSPI_ERROR;
   }
@@ -374,7 +413,7 @@ uint8_t BSP_QSPI_GetStatus(void)
   }
   
   /* Check the value of the register */
-  if((reg & W25Q128FV_FSR_BUSY) != 0)
+  if((reg & W25Q256JV_FSR_BUSY) != 0)
   {
     return QSPI_BUSY;
   }
@@ -392,11 +431,11 @@ uint8_t BSP_QSPI_GetStatus(void)
 uint8_t BSP_QSPI_GetInfo(QSPI_Info* pInfo)
 {
   /* Configure the structure with the memory configuration */
-  pInfo->FlashSize          = W25Q128FV_FLASH_SIZE;
-  pInfo->EraseSectorSize    = W25Q128FV_SUBSECTOR_SIZE;
-  pInfo->EraseSectorsNumber = (W25Q128FV_FLASH_SIZE/W25Q128FV_SUBSECTOR_SIZE);
-  pInfo->ProgPageSize       = W25Q128FV_PAGE_SIZE;
-  pInfo->ProgPagesNumber    = (W25Q128FV_FLASH_SIZE/W25Q128FV_PAGE_SIZE);
+  pInfo->FlashSize          = W25Q256JV_FLASH_SIZE;
+  pInfo->EraseSectorSize    = W25Q256JV_SUBSECTOR_SIZE;
+  pInfo->EraseSectorsNumber = (W25Q256JV_FLASH_SIZE/W25Q256JV_SUBSECTOR_SIZE);
+  pInfo->ProgPageSize       = W25Q256JV_PAGE_SIZE;
+  pInfo->ProgPagesNumber    = (W25Q256JV_FLASH_SIZE/W25Q256JV_PAGE_SIZE);
   return QSPI_OK;
 }
 
@@ -416,7 +455,7 @@ uint8_t BSP_QSPI_GetInfo(QSPI_Info* pInfo)
 //  s_command.AddressSize       = QSPI_ADDRESS_24_BITS;
 //  s_command.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
 //  s_command.DataMode          = QSPI_DATA_4_LINES;
-//  s_command.DummyCycles       = W25Q128FV_DUMMY_CYCLES_READ_QUAD;
+//  s_command.DummyCycles       = W25Q256JV_DUMMY_CYCLES_READ_QUAD;
 //  s_command.DdrMode           = QSPI_DDR_MODE_DISABLE;
 //  s_command.DdrHoldHalfCycle  = QSPI_DDR_HHC_ANALOG_DELAY;
 //  s_command.SIOOMode          = QSPI_SIOO_INST_EVERY_CMD;
@@ -499,8 +538,8 @@ static uint8_t QSPI_WriteEnable()
   }
   
   /* Configure automatic polling mode to wait for write enabling */  
-  s_config.Match           = W25Q128FV_FSR_WREN;
-  s_config.Mask            = W25Q128FV_FSR_WREN;
+  s_config.Match           = W25Q256JV_FSR_WREN;
+  s_config.Mask            = W25Q256JV_FSR_WREN;
   s_config.MatchMode       = QSPI_MATCH_MODE_AND;
   s_config.StatusBytesSize = 1;
   s_config.Interval        = 0x10;
@@ -539,7 +578,7 @@ static uint8_t QSPI_AutoPollingMemReady(uint32_t Timeout)
   s_command.SIOOMode          = QSPI_SIOO_INST_EVERY_CMD;
 
   s_config.Match           = 0x00;
-  s_config.Mask            = W25Q128FV_FSR_BUSY;
+  s_config.Mask            = W25Q256JV_FSR_BUSY;
   s_config.MatchMode       = QSPI_MATCH_MODE_AND;
   s_config.StatusBytesSize = 1;
   s_config.Interval        = 0x10;

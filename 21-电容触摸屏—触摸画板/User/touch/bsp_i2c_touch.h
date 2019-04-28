@@ -29,16 +29,16 @@
 #define GTP_I2C_SDA_AF                   GPIO_AF4_I2C2
 
 /*复位引脚*/
-#define GTP_RST_GPIO_PORT                GPIOD
-#define GTP_RST_GPIO_CLK_ENABLE()        __HAL_RCC_GPIOD_CLK_ENABLE()
-#define GTP_RST_GPIO_PIN                 GPIO_PIN_11
+#define GTP_RST_GPIO_PORT                GPIOI
+#define GTP_RST_GPIO_CLK_ENABLE()        __HAL_RCC_GPIOI_CLK_ENABLE()
+#define GTP_RST_GPIO_PIN                 GPIO_PIN_8
 /*中断引脚*/
-#define GTP_INT_GPIO_PORT                GPIOB
-#define GTP_INT_GPIO_CLK_ENABLE()        __HAL_RCC_GPIOB_CLK_ENABLE()
-#define GTP_INT_GPIO_PIN                 GPIO_PIN_7
-#define GTP_INT_EXTI_IRQ                 EXTI9_5_IRQn
+#define GTP_INT_GPIO_PORT                GPIOD
+#define GTP_INT_GPIO_CLK_ENABLE()        __HAL_RCC_GPIOD_CLK_ENABLE()
+#define GTP_INT_GPIO_PIN                 GPIO_PIN_13
+#define GTP_INT_EXTI_IRQ                 EXTI15_10_IRQn
 /*中断服务函数*/
-#define GTP_IRQHandler                   EXTI9_5_IRQHandler
+#define GTP_IRQHandler                   EXTI15_10_IRQHandler
 
 
 //软件IIC使用的宏

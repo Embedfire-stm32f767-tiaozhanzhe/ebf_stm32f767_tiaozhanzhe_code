@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    bsp_i2c_ee.c
+  * @file    bsp_i2c_touch.c
   * @author  STMicroelectronics
   * @version V1.0
   * @date    2016-xx-xx
