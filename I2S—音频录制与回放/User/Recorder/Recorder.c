@@ -31,7 +31,7 @@ extern DMA_HandleTypeDef hdma_spi2_rx;
 #define FMT_COUNT	6		/* 音频格式数组元素个数 */
 
 /* 录音文件路径全称：初始化为rec001.wav */
-static char recfilename[25]={"0:/recorder/rec001.wav"};   
+static char recfilename[26]={"0:/recorder/rec001.wav"};   
 static REC_TYPE Recorder;          	/* 录音设备 */
 static WavHead rec_wav;            	/* WAV设备  */
 volatile uint8_t Isread=0;    		/* DMA传输完成标志 */

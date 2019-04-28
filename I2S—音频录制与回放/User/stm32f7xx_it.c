@@ -41,7 +41,8 @@
 #include "stm32f7xx_it.h"
 #include "main.h"
 #include "./sdmmc/bsp_sdmmc_sd.h"
-#include "./wm8978/bsp_wm8978.h"  
+#include "./wm8978/bsp_wm8978.h" 
+#include "./usart/bsp_usart.h"
 /** @addtogroup STM32F7xx_HAL_Examples
   * @{
   */
@@ -77,6 +78,7 @@ void NMI_Handler(void)
   */
 void HardFault_Handler(void)
 {
+  printf("********** hardfault ************");
   /* Go to infinite loop when Hard Fault exception occurs */
   while (1)
   {
