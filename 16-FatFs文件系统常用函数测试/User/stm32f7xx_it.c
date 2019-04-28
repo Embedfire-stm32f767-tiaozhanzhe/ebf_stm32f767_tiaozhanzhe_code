@@ -77,9 +77,12 @@ void HardFault_Handler(void)
 {
   printf("\r\n****** hardfault ******\r\n");
   /* Go to infinite loop when Hard Fault exception occurs */
-  while (1)
-  {
-  }
+//  if (CoreDebug->DHCSR & 1) {  //check C_DEBUGEN == 1 -> Debugger Connected  
+//      __breakpoint(0);  // halt program execution here         
+//  }  
+  while (1)  
+  {  
+  } 
 }
 
 /**

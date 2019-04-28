@@ -29,7 +29,7 @@ uint32_t RadomBuffer[10000];
 
 uint32_t ReadBuffer[10000];
 
-#define SDRAM_SIZE (IS42S16400J_SIZE/4)
+#define SDRAM_SIZE (W9825G6KH_SIZE/4)
 
 uint32_t *pSDRAM;
 
