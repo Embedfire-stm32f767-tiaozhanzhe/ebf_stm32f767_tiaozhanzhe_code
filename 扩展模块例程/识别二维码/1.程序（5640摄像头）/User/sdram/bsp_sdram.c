@@ -48,6 +48,7 @@ static void SDRAM_GPIO_Config(void)
   FMC_A3_GPIO_CLK;FMC_A4_GPIO_CLK;FMC_A5_GPIO_CLK;
   FMC_A6_GPIO_CLK; FMC_A7_GPIO_CLK; FMC_A8_GPIO_CLK;
   FMC_A9_GPIO_CLK; FMC_A10_GPIO_CLK;FMC_A11_GPIO_CLK; 
+  FMC_A12_GPIO_CLK;
   /*数据信号线*/
   FMC_D0_GPIO_CLK; FMC_D1_GPIO_CLK ; FMC_D2_GPIO_CLK ; 
   FMC_D3_GPIO_CLK ; FMC_D4_GPIO_CLK ; FMC_D5_GPIO_CLK ;
@@ -114,7 +115,9 @@ static void SDRAM_GPIO_Config(void)
   
   GPIO_InitStructure.Pin = FMC_A11_GPIO_PIN; 
   HAL_GPIO_Init(FMC_A11_GPIO_PORT, &GPIO_InitStructure);
-
+  
+  GPIO_InitStructure.Pin = FMC_A12_GPIO_PIN; 
+  HAL_GPIO_Init(FMC_A12_GPIO_PORT, &GPIO_InitStructure);
   
   
   /*数据信号线 针对引脚配置*/
@@ -284,10 +287,10 @@ static void SDRAM_InitSequence(void)
 /* Step 8 --------------------------------------------------------------------*/
 
   /* 设置刷新计数器 */
-  /* (15.62 us x Freq) - 20 */
-	  /* Step 6: Set the refresh rate counter */
+  /* (7.8125 us x Freq) - 20 */
+	/* Step 6: Set the refresh rate counter */
   /* Set the device refresh rate */
-  HAL_SDRAM_ProgramRefreshRate(&sdramHandle, 1386); 
+  HAL_SDRAM_ProgramRefreshRate(&sdramHandle, 824); 
 //  FMC_SetRefreshCount(1386);
 //  /* 发送上述命令*/
 //  while(FMC_GetFlagStatus(FMC_BANK_SDRAM, FMC_FLAG_Busy) != RESET)
@@ -468,20 +471,20 @@ uint8_t SDRAM_Test(void)
 
   /*按8位格式读写数据，并校验*/
   
-  /* 把SDRAM数据全部重置为0 ，IS42S16400J_SIZE是以8位为单位的 */
-  for (counter = 0x00; counter < IS42S16400J_SIZE; counter++)
+  /* 把SDRAM数据全部重置为0 ，W9825G6KH_SIZE是以8位为单位的 */
+  for (counter = 0x00; counter < W9825G6KH_SIZE; counter++)
   {
     *(__IO uint8_t*) (SDRAM_BANK_ADDR + counter) = (uint8_t)0x0;
   }
   
   /* 向整个SDRAM写入数据  8位 */
-  for (counter = 0; counter < IS42S16400J_SIZE; counter++)
+  for (counter = 0; counter < W9825G6KH_SIZE; counter++)
   {
     *(__IO uint8_t*) (SDRAM_BANK_ADDR + counter) = (uint8_t)(ubWritedata_8b + counter);
   }
   
   /* 读取 SDRAM 数据并检测*/
-  for(counter = 0; counter<IS42S16400J_SIZE;counter++ )
+  for(counter = 0; counter<W9825G6KH_SIZE;counter++ )
   {
     ubReaddata_8b = *(__IO uint8_t*)(SDRAM_BANK_ADDR + counter);  //从该地址读出数据
     
@@ -496,19 +499,19 @@ uint8_t SDRAM_Test(void)
   /*按16位格式读写数据，并检测*/
   
   /* 把SDRAM数据全部重置为0 */
-  for (counter = 0x00; counter < IS42S16400J_SIZE/2; counter++)
+  for (counter = 0x00; counter < W9825G6KH_SIZE/2; counter++)
   {
     *(__IO uint16_t*) (SDRAM_BANK_ADDR + 2*counter) = (uint16_t)0x00;
   }
   
   /* 向整个SDRAM写入数据  16位 */
-  for (counter = 0; counter < IS42S16400J_SIZE/2; counter++)
+  for (counter = 0; counter < W9825G6KH_SIZE/2; counter++)
   {
     *(__IO uint16_t*) (SDRAM_BANK_ADDR + 2*counter) = (uint16_t)(uhWritedata_16b + counter);
   }
   
     /* 读取 SDRAM 数据并检测*/
-  for(counter = 0; counter<IS42S16400J_SIZE/2;counter++ )
+  for(counter = 0; counter<W9825G6KH_SIZE/2;counter++ )
   {
     uhReaddata_16b = *(__IO uint16_t*)(SDRAM_BANK_ADDR + 2*counter);  //从该地址读出数据
     

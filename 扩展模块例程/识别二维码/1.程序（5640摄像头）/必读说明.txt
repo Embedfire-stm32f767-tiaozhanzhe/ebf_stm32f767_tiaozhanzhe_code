@@ -46,11 +46,11 @@ OV5640与RGB LED灯引脚共用，两个设备不能同时使用。
 		VSYNC	<--->PI5
 		XCLK	<--->PA6
 		PCK		<--->PA8
-		RST		<--->PG2
+		RST		<--->PB5
 		PWDN	<--->PG3
 
-		SCL<--->PD12
-		SDA<--->PD13
+		SCL<--->PB6
+		SDA<--->PB7
 		
 数据线DO0-DO7省略。
 
