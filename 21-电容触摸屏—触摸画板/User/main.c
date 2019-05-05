@@ -33,38 +33,40 @@ void Delay(__IO uint32_t nCount);
   */
 int main(void)
 {
-    /* 系统时钟初始化成216 MHz */
-    SystemClock_Config();
-    /* LED 端口初始化 */
-    LED_GPIO_Config();	
-    /* 初始化触摸屏 */
-    GTP_Init_Panel(); 	
-    /* LCD 端口初始化 */ 
-    LCD_Init();
-	/* LCD 第二层初始化 */ 
-    LCD_LayerInit(1, LCD_FB_START_ADDRESS+(LCD_GetXSize()*LCD_GetYSize()*4),ARGB8888);
-    /* 使能LCD，包括开背光 */ 
-    LCD_DisplayOn(); 
+  /* 系统时钟初始化成216 MHz */
+  SystemClock_Config();
+  /* LED 端口初始化 */
+  LED_GPIO_Config();
+  /* 串口初始化 */
+  DEBUG_USART_Config();
+  /* 初始化触摸屏 */
+  GTP_Init_Panel(); 	
+  /* LCD 端口初始化 */ 
+  LCD_Init();
+  /* LCD 第二层初始化 */ 
+  LCD_LayerInit(1, LCD_FB_START_ADDRESS+(LCD_GetXSize()*LCD_GetYSize()*4),ARGB8888);
+  /* 使能LCD，包括开背光 */ 
+  LCD_DisplayOn(); 
 
-    /* 选择LCD第二层 */
-    LCD_SelectLayer(1);
+  /* 选择LCD第二层 */
+  LCD_SelectLayer(1);
 
-    /* 第二层清屏，显示全黑 */ 
-    LCD_Clear(LCD_COLOR_TRANSPARENT);
+  /* 第二层清屏，显示全黑 */ 
+  LCD_Clear(LCD_COLOR_TRANSPARENT);
 
-    /* 配置透明度,最小值为0，最大值为255*/
+  /* 配置透明度,最小值为0，最大值为255*/
 
-    LCD_SetTransparency(1, 255);
-	printf("\r\n野火STM3F767 触摸画板测试例程\r\n");
-	/*调用画板函数*/
-	Palette_Init();
+  LCD_SetTransparency(1, 255);
+  printf("\r\n野火STM3F767 触摸画板测试例程\r\n");
+  /*调用画板函数*/
+  Palette_Init();
 
-    Delay(0xfff);
-	
-    while(1)
-    {
-     
-    }
+  Delay(0xfff);
+
+  while(1)
+  {
+
+  }
 }
 
 /**
