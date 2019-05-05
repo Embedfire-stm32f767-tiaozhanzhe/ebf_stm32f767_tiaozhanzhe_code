@@ -38,49 +38,46 @@ uint32_t Task_Delay[NumOfTask]={0};
   */
 int main(void)
 {
-	static uint16_t ALS_RAW;
-  static uint16_t PS_RAW;
-  static uint16_t IR_RAW;
-  
-  float ALSValue;
-//  float PSValue;
-//  float IRValue;
+	float ALS;
+  uint16_t PS;
+  uint16_t IR;
+  uint8_t INTstatus;
 	
-    /* 系统时钟初始化成216 MHz */
-    SystemClock_Config();
-    /* LED 端口初始化 */
-    LED_GPIO_Config();
-	
+  /* 系统时钟初始化成216 MHz */
+  SystemClock_Config();
+  /* LED 端口初始化 */
+  LED_GPIO_Config();
+
 #ifdef USE_LCD_DISPLAY		
-    /* LCD 端口初始化 */ 
-    LCD_Init();
-    /* LCD 第一层初始化 */ 
-    LCD_LayerInit(0, LCD_FB_START_ADDRESS,ARGB8888);
-	/* LCD 第二层初始化 */ 
-    LCD_LayerInit(1, LCD_FB_START_ADDRESS+(LCD_GetXSize()*LCD_GetYSize()*4),ARGB8888);
-    /* 使能LCD，包括开背光 */ 
-    LCD_DisplayOn(); 
+  /* LCD 端口初始化 */ 
+  LCD_Init();
+  /* LCD 第一层初始化 */ 
+  LCD_LayerInit(0, LCD_FB_START_ADDRESS,ARGB8888);
+  /* LCD 第二层初始化 */ 
+  LCD_LayerInit(1, LCD_FB_START_ADDRESS+(LCD_GetXSize()*LCD_GetYSize()*4),ARGB8888);
+  /* 使能LCD，包括开背光 */ 
+  LCD_DisplayOn(); 
 
-    /* 选择LCD第一层 */
-    LCD_SelectLayer(0);
+  /* 选择LCD第一层 */
+  LCD_SelectLayer(0);
 
-    /* 第一层清屏，显示全黑 */ 
-    LCD_Clear(LCD_COLOR_BLACK);  
+  /* 第一层清屏，显示全黑 */ 
+  LCD_Clear(LCD_COLOR_BLACK);  
 
-    /* 选择LCD第二层 */
-    LCD_SelectLayer(1);
+  /* 选择LCD第二层 */
+  LCD_SelectLayer(1);
 
-    /* 第二层清屏，显示透明 */ 
-    LCD_Clear(LCD_COLOR_TRANSPARENT);
+  /* 第二层清屏，显示透明 */ 
+  LCD_Clear(LCD_COLOR_TRANSPARENT);
 
-    /* 配置第一和第二层的透明度,最小值为0，最大值为255*/
-    LCD_SetTransparency(0, 255);
-    LCD_SetTransparency(1, 0);
-	
-	/* 选择LCD第一层 */
-    LCD_SelectLayer(0);
-	/*设置字体颜色及字体的背景颜色*/
-	LCD_SetColors(LCD_COLOR_RED,LCD_COLOR_BLACK);	
+  /* 配置第一和第二层的透明度,最小值为0，最大值为255*/
+  LCD_SetTransparency(0, 255);
+  LCD_SetTransparency(1, 0);
+
+  /* 选择LCD第一层 */
+  LCD_SelectLayer(0);
+  /*设置字体颜色及字体的背景颜色*/
+  LCD_SetColors(LCD_COLOR_RED,LCD_COLOR_BLACK);	
 #endif
   /*初始化USART1*/
 	DEBUG_USART_Config(); 
@@ -90,7 +87,7 @@ int main(void)
 
 	printf("\r\n 欢迎使用野火 STM32F767 开发板。\r\n");		 
 
-	printf("\r\n 这是一个硬件I2C外设(AP3216C)读写测试例程 \r\n");
+	printf("\r\n 这是一个AP3216C全功能测试例程 \r\n");
 
  	//AP3216C初始化
 	AP3216C_Init();
@@ -104,22 +101,40 @@ int main(void)
       LED2_TOGGLE;
       Task_Delay[0]=1000;
     }
-    
     if(Task_Delay[1]==0)
     {
-      AP3216CReadALS(&ALS_RAW);
-      AP3216CReadPS(&PS_RAW);
-      AP3216CReadIR(&IR_RAW);
-      ALSValue = ALS_RAW * 0.36;// Lux = 16 bit ALS data * Resolution
-      printf("环境光：%.2flux ",ALSValue);
-      printf("接近值：%d ",PS_RAW);
-      printf("红外光：%d\r\n",IR_RAW);			
+      ALS = AP3216C_ReadALS();
+      PS = AP3216C_ReadPS();
+      IR = AP3216C_ReadIR();
+      printf("\r\n环境光：%.2flux 红外强度：%d\r\n", ALS, IR);			
       
+      if(PS == 0xFFFF)
+        printf("IR太强，PS数据无效\r\n");
+      else
+        printf("接近距离是：%d\r\n", PS & 0x3FF);
+      
+      if(AP3216C_Get_INTStatus() == 0)
+        printf("有中断产生\r\n");
+      
+      /* 轮询传感器中断 */
+      if (AP_INT_Read() == 0)
+      printf("有中断产生\n");
+    
+      if ((PS >> 15) & 1)
+        printf("物体接近\n");
+      else
+        printf("物体远离\n");
+      
+      if (INTstatus & 0x1)
+        printf("ALS 产生中断\n");
+      
+      if (INTstatus >> 1 & 0x1)
+        printf("PS 产生中断\n");
       
       #ifdef USE_LCD_DISPLAY	
         {
           char cStr [ 70 ];
-          sprintf ( cStr, "ALS：%8.2flux",ALSValue);	//环境光数据
+          sprintf ( cStr, "ALS：%8.2flux",ALS);	//环境光数据
 
           LCD_DisplayStringLine(7,(uint8_t* )cStr);			
 
@@ -144,7 +159,7 @@ int main(void)
 //			Task_Delay[i]=;
 //		}
 
-	}
+  }
 }
 
 /**

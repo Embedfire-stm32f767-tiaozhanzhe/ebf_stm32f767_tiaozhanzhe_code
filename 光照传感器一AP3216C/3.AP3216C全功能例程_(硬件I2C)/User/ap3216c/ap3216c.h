@@ -2,6 +2,18 @@
 #define __AP3216C_H
 #include "stm32f7xx.h"
 
+//中断引脚定义
+/*******************************************************/
+
+#define AP_INT_GPIO_PORT                GPIOE
+#define AP_INT_GPIO_CLK_ENABLE()        __GPIOE_CLK_ENABLE();
+#define AP_INT_GPIO_PIN                 GPIO_PIN_3
+
+/* 读中断引脚状态 */
+#define AP_INT_Read()    HAL_GPIO_ReadPin(AP_INT_GPIO_PORT, AP_INT_GPIO_PIN)
+
+/*******************************************************/
+
 // AP3216C, Standard address 0x1E
 #define AP3216C_ADDRESS                 0x3C
 #define AP3216C_WHO_AM_I                0x75
@@ -87,12 +99,17 @@
 
 #define AP3216C_PS_INT_MOD_BIT 0
 
-void AP3216C_WriteReg(uint8_t reg_add,uint8_t reg_dat);
-void AP3216C_ReadData(uint8_t reg_add,unsigned char* Read,uint8_t num);
+static void AP3216C_WriteReg(uint8_t reg_add,uint8_t reg_dat);
+static void AP3216C_ReadData(uint8_t reg_add,unsigned char* Read,uint8_t num);
 
-void AP3216CReadALS(uint16_t *alsData);
-void AP3216CReadPS(uint16_t *psData);
-void AP3216CReadIR(uint16_t *irData);
+void AP3216C_Set_ALS_Threshold(uint16_t low_threshold, uint16_t high_threshold);
+void AP3216C_Set_PS_Threshold(uint16_t low_threshold, uint16_t high_threshold);
+uint8_t AP3216C_Get_INTStatus(void);
+void AP3216C_INT_Config(void);
+
+float AP3216C_ReadALS(void);
+uint16_t AP3216C_ReadPS(void);
+uint16_t AP3216C_ReadIR(void);
 void AP3216C_ReturnTemp(float*Temperature);
 void AP3216C_Init(void);
 
