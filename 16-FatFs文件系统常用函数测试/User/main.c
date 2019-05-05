@@ -46,13 +46,13 @@ extern FATFS flash_fs;
   *                                任务函数
   ******************************************************************************
   */
+
 /* FatFs多项功能测试 */
+DIR dir;
+FATFS *pfs;
+DWORD fre_clust, fre_sect, tot_sect;
 static FRESULT miscellaneous(void)
 {
-  DIR dir;
-  FATFS *pfs;
-  DWORD fre_clust, fre_sect, tot_sect;
-  
   printf("\n*************** 设备信息获取 ***************\r\n");
   /* 获取设备信息和空簇大小 */
   res_flash = f_getfree("0:", &fre_clust, &pfs);
@@ -207,22 +207,22 @@ static FRESULT scan_files (char* path)
   */
 int main(void)
 {
-    SystemClock_Config();
-    /* Enable I-Cache */
-    SCB_EnableICache();
-    /* Enable D-Cache */
-    SCB_EnableDCache();
-	/* 初始化LED */
-	LED_GPIO_Config();	
-	LED_BLUE;
-	
-	/* 初始化调试串口，一般为串口1 */
-	DEBUG_USART_Config();	
-    printf("****** 这是一个SPI FLASH 文件系统实验 ******\r\n");
-    
-    TM_FATFS_FLASH_SPI_disk_initialize(NULL);
-    
-    FATFS_LinkDriver(&QSPI_Driver, QSPIPath);
+  SystemClock_Config();
+  /* Enable I-Cache */
+  SCB_EnableICache();
+  /* Enable D-Cache */
+  SCB_EnableDCache();
+  /* 初始化LED */
+  LED_GPIO_Config();	
+  LED_BLUE;
+
+  /* 初始化调试串口，一般为串口1 */
+  DEBUG_USART_Config();	
+  printf("****** 这是一个SPI FLASH 文件系统实验 ******\r\n");
+
+  TM_FATFS_FLASH_SPI_disk_initialize(NULL);
+
+  FATFS_LinkDriver(&QSPI_Driver, QSPIPath);
   
 	//在外部SPI Flash挂载文件系统，文件系统挂载时会对SPI设备初始化
 	res_flash = f_mount(&fs,"0:",1);
