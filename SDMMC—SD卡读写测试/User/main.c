@@ -65,7 +65,7 @@ int main(void)
     UARTx_Config();	
     /* 初始化独立按键 */
     Key_GPIO_Config();
-    printf("\r\n欢迎使用秉火  STM32 F767 开发板。\r\n");	
+    printf("\r\n欢迎使用野火 STM32F767 开发板。\r\n");	
     printf("在开始进行SD卡基本测试前，请给开发板插入32G以内的SD卡\r\n");			
     printf("本程序会对SD卡进行非文件系统方式读写，会删除SD卡的文件系统\r\n");		
     printf("实验后可通过电脑格式化或使用SD卡文件系统的例程恢复SD卡文件系统\r\n");		

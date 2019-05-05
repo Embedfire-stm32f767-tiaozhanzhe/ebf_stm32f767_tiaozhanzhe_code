@@ -45,7 +45,7 @@ int main(void)
 	
 	Key_GPIO_Config();
 	
-	printf("\r\n 欢迎使用秉火  STM32 F767 开发板。\r\n");
+	printf("\r\n 欢迎使用野火 STM32F767 开发板。\r\n");
     printf("\r\n 秉火F767 485通讯实验例程\r\n");
 	
 	printf("\r\n 实验步骤：\r\n");

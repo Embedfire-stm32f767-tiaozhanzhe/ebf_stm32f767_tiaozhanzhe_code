@@ -42,7 +42,7 @@ int main(void)
 	/* 初始化按键为中断模式，按下中断后会进入中断服务函数	*/
 	EXTI_Key_Config(); 
 	
-	printf("\r\n 欢迎使用秉火  STM32 F767 开发板。\r\n");
+	printf("\r\n 欢迎使用野火 STM32F767 开发板。\r\n");
     printf("\r\n 秉火F767 停止模式例程\r\n");
 	
 	printf("\r\n 实验说明：\r\n");

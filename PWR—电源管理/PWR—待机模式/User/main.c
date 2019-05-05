@@ -36,7 +36,7 @@ int main(void)
 	/*初始化按键，不需要中断,仅初始化KEY2即可，只用于唤醒的PA0引脚不需要这样初始化*/
 	Key_GPIO_Config(); 
 	
-	printf("\r\n 欢迎使用秉火  STM32 F767 开发板。\r\n");
+	printf("\r\n 欢迎使用野火 STM32F767 开发板。\r\n");
 	printf("\r\n 秉火F767 待机模式例程\r\n");
 	
 	printf("\r\n 实验说明：\r\n");

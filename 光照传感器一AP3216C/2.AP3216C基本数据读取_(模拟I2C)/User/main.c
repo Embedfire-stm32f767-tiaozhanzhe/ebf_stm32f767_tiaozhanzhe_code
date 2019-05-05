@@ -8,7 +8,7 @@
   ******************************************************************************
   * @attention
   *
-  * 实验平台:秉火  STM32 F767 开发板  
+  * 实验平台:野火 STM32F767 开发板  
   * 论坛    :http://www.firebbs.cn
   * 淘宝    :http://firestm32.taobao.com
   *
@@ -88,7 +88,7 @@ int main(void)
 	//初始化 I2C
 	I2C_Init(); 
 
-	printf("\r\n 欢迎使用秉火  STM32 F767 开发板。\r\n");		 
+	printf("\r\n 欢迎使用野火 STM32F767 开发板。\r\n");		 
 
 	printf("\r\n 这是一个硬件I2C外设(AP3216C)读写测试例程 \r\n");
 
