@@ -323,7 +323,7 @@
 #define FMC_LDQM_AF               GPIO_AF_FMC
 
 
-/** @defgroup STM32429 SDRAMº¯Êý
+/** @defgroup STM32F767 SDRAMº¯Êý
   * @{
   */ 
 void  SDRAM_Init(void);
