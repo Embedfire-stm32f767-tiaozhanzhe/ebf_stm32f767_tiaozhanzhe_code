@@ -103,22 +103,16 @@ int main(void)
     }
     if(Task_Delay[1]==0)
     {
+      INTstatus = AP3216C_Get_INTStatus();
       ALS = AP3216C_ReadALS();
       PS = AP3216C_ReadPS();
       IR = AP3216C_ReadIR();
       printf("\r\n环境光：%.2flux 红外强度：%d\r\n", ALS, IR);			
       
-      if(PS == 0xFFFF)
+      if(PS == 55555)
         printf("IR太强，PS数据无效\r\n");
       else
         printf("接近距离是：%d\r\n", PS & 0x3FF);
-      
-      if(AP3216C_Get_INTStatus() == 0)
-        printf("有中断产生\r\n");
-      
-      /* 轮询传感器中断 */
-      if (AP_INT_Read() == 0)
-      printf("有中断产生\n");
     
       if ((PS >> 15) & 1)
         printf("物体接近\n");
@@ -148,7 +142,7 @@ int main(void)
         }
       #endif
       
-      Task_Delay[1]=500; //更新一次数据，可根据自己的需求，提高采样频率，如100ms采样一次
+      Task_Delay[1]=225; //可根据自己的需求，提高采样频率，最小采样间隔225ms
       
     }
 

@@ -11,7 +11,6 @@
 
 /* ¶ÁÖÐ¶ÏÒý½Å×´Ì¬ */
 #define AP_INT_Read()    HAL_GPIO_ReadPin(AP_INT_GPIO_PORT, AP_INT_GPIO_PIN)
-
 /*******************************************************/
 
 // AP3216C, Standard address 0x1E
@@ -25,7 +24,7 @@
 #define AP3216C_IR_DATA_HIGH            0x0B
 #define AP3216C_ALS_DATA_LOW            0x0C
 #define AP3216C_ALS_DATA_HIGH           0x0D
-#define AP3216C_PS_DATA_LOW             0x0C
+#define AP3216C_PS_DATA_LOW             0x0E
 #define AP3216C_PS_DATA_HIGH            0x0F
 
 #define AP3216C_ALS_CONFIG              0x10
@@ -36,7 +35,7 @@
 #define AP3216C_ALS_HIGH_THRESHOLD15_8  0x1D
 
 #define AP3216C_PS_CONFIG               0x20
-#define AP3216C_PS_LED_DRIVER           0x21
+#define AP3216C_PS_LED_CTRL             0x21
 #define AP3216C_PS_INT_FORM             0x22
 #define AP3216C_PS_MEAN_TIME            0x23 
 #define AP3216C_PS_LED_WAITING_TIME     0x24
@@ -47,57 +46,26 @@
 #define AP3216C_PS_HIGH_THRESHOLD2_0    0x2C
 #define AP3216C_PS_HIGH_THRESHOLD10_3   0x2D
 
-#define AP3216C_PWR_DOWN_BIT          0
-#define AP3216C_ALS_ACTIVE_BIT        1
-#define AP3216C_PS_IR_ACTIVE_BIT      2
-#define AP3216C_ALS_PS_IR_ACTIVE_BIT  3
-#define AP3216C_SW_RST_BIT            4
-#define AP3216C_ALS_ONCE_BIT          5
-#define AP3216C_PS_IR_ONCE_BIT        6
-#define AP3216C_ALS_PS_IR_ONCE_BIT    7
+enum ap3216c_mode_value
+{
+    AP3216C_MODE_POWER_DOWN,      //Power down (Default)
+    AP3216C_MODE_ALS,             //ALS function active
+    AP3216C_MODE_PS,              //PS+IR function active
+    AP3216C_MODE_ALS_AND_PS,      //ALS and PS+IR functions active
+    AP3216C_MODE_SW_RESET,        //SW reset
+    AP3216C_MODE_ALS_ONCE,        //ALS function once
+    AP3216C_MODE_PS_ONCE,         //PS+IR function once
+    AP3216C_MODE_ALS_AND_PS_ONCE, //ALS and PS+IR functions once
+};
 
-#define AP3216C_ALS_INT_STATUS_BIT    0
-#define AP3216C_PS_INT_STATUS_BIT     1
-#define AP3216C_INT_CLEAR_MANNER_BIT  0
-
-#define AP3216C_ALS_RESOLUTION_036LUX_BIT   0
-#define AP3216C_ALS_RESOLUTION_0089LUX_BIT  1
-#define AP3216C_ALS_RESOLUTION_0022LUX_BIT  2
-#define AP3216C_ALS_RESOLUTION_00056LUX_BIT 3
-
-#define AP3216C_ALS_INT_FILTER_1_BIT  0
-#define AP3216C_ALS_INT_FILTER_4_BIT  1
-#define AP3216C_ALS_INT_FILTER_8_BIT  2
-#define AP3216C_ALS_INT_FILTER_12_BIT 3
-#define AP3216C_ALS_INT_FILTER_16_BIT 4
-#define AP3216C_ALS_INT_FILTER_60_BIT 5
-
-#define AP3216C_PS_IR_INTERGRATION_TIME_1T_BIT 0
-#define AP3216C_PS_IR_INTERGRATION_TIME_2T_BIT 1
-#define AP3216C_PS_IR_INTERGRATION_TIME_15T_BIT 14
-#define AP3216C_PS_IR_INTERGRATION_TIME_16T_BIT 15
-
-#define AP3216C_PS_GAIN_X1_BIT 0
-#define AP3216C_PS_GAIN_X2_BIT 1
-#define AP3216C_PS_GAIN_X4_BIT 2
-#define AP3216C_PS_GAIN_X8_BIT 3
-
-#define AP3216C_PS_INT_FILTER_1_BIT 0
-#define AP3216C_PS_INT_FILTER_2_BIT 1
-#define AP3216C_PS_INT_FILTER_4_BIT 2
-#define AP3216C_PS_INT_FILTER_8_BIT 3
-
-#define AP3216C_PS_LED_PULSE_0_BIT 0
-#define AP3216C_PS_LED_PULSE_1_BIT 1
-#define AP3216C_PS_LED_PULSE_2_BIT 2
-#define AP3216C_PS_LED_PULSE_3_BIT 3
-
-#define AP3216C_PS_LED_DRIVER_RATIO_0167_BIT 0
-#define AP3216C_PS_LED_DRIVER_RATIO_0333_BIT 1
-#define AP3216C_PS_LED_DRIVER_RATIO_0667_BIT 2
-#define AP3216C_PS_LED_DRIVER_RATIO_1000_BIT 3
-
-#define AP3216C_PS_INT_MOD_BIT 0
+enum als_range
+{
+    AP3216C_ALS_RANGE_20661, //Resolution = 0.35 lux/count(default).
+    AP3216C_ALS_RANGE_5162,  //Resolution = 0.0788 lux/count.
+    AP3216C_ALS_RANGE_1291,  //Resolution = 0.0197 lux/count.
+    AP3216C_ALS_RANGE_323,   //Resolution = 0.0049 lux/count
+};
+typedef enum als_range als_range_t;
 
 static void AP3216C_WriteReg(uint8_t reg_add,uint8_t reg_dat);
 static void AP3216C_ReadData(uint8_t reg_add,unsigned char* Read,uint8_t num);
@@ -105,13 +73,11 @@ static void AP3216C_ReadData(uint8_t reg_add,unsigned char* Read,uint8_t num);
 void AP3216C_Set_ALS_Threshold(uint16_t low_threshold, uint16_t high_threshold);
 void AP3216C_Set_PS_Threshold(uint16_t low_threshold, uint16_t high_threshold);
 uint8_t AP3216C_Get_INTStatus(void);
-void AP3216C_INT_Config(void);
+static void AP3216C_INT_Config(void);
 
 float AP3216C_ReadALS(void);
 uint16_t AP3216C_ReadPS(void);
 uint16_t AP3216C_ReadIR(void);
-void AP3216C_ReturnTemp(float*Temperature);
 void AP3216C_Init(void);
-
 
 #endif  /*__AP3216C*/

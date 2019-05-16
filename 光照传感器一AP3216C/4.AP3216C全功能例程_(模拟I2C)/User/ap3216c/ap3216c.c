@@ -36,7 +36,7 @@ void AP3216C_ReadData(uint8_t reg_add,unsigned char* Read,uint8_t num)
   */
 void AP3216C_Reset(void)
 {
-  AP3216C_WriteReg(AP3216C_SYS_CONFIG, AP3216C_SW_RST_BIT);
+  AP3216C_WriteReg(AP3216C_SYS_CONFIG, AP3216C_MODE_SW_RESET);
 }
 
 /**
@@ -50,31 +50,32 @@ void AP3216C_Set_ALS_Threshold(uint16_t low_threshold, uint16_t high_threshold)
   uint8_t resolution;
   double DR;
   
+  /* 读光照强度的范围 */
   AP3216C_ReadData(AP3216C_ALS_CONFIG, &resolution, 1);
-  if((resolution >> 4) == AP3216C_ALS_RESOLUTION_036LUX_BIT)
+  if((resolution >> 4) == AP3216C_ALS_RANGE_20661)
   {
     DR = 0.36;
   }
-  else if((resolution >> 4) == AP3216C_ALS_RESOLUTION_0089LUX_BIT)
+  else if((resolution >> 4) == AP3216C_ALS_RANGE_5162)
   {
     DR = 0.089;
   }
-  else if((resolution >> 4) == AP3216C_ALS_RESOLUTION_0022LUX_BIT)
+  else if((resolution >> 4) == AP3216C_ALS_RANGE_1291)
   {
     DR = 0.022;
   }
-  else if((resolution >> 4) == AP3216C_ALS_RESOLUTION_00056LUX_BIT)
+  else if((resolution >> 4) == AP3216C_ALS_RANGE_323)
   {
     DR = 0.0056;
   }
   
-  high_threshold = (uint16_t)high_threshold / DR;
   low_threshold = (uint16_t)low_threshold / DR;
+  high_threshold = (uint16_t)high_threshold / DR;
   
-  AP3216C_WriteReg(AP3216C_ALS_LOW_THRESHOLD7_0, (low_threshold & 0xFF));
-  AP3216C_WriteReg(AP3216C_ALS_LOW_THRESHOLD15_8, (low_threshold >> 8));
-  AP3216C_WriteReg(AP3216C_ALS_HIGH_THRESHOLD7_0, (high_threshold & 0xFF));
-  AP3216C_WriteReg(AP3216C_ALS_HIGH_THRESHOLD15_8, (high_threshold >> 8));
+  AP3216C_WriteReg(AP3216C_ALS_LOW_THRESHOLD7_0, (low_threshold & 0xff));
+  AP3216C_WriteReg(AP3216C_ALS_LOW_THRESHOLD15_8, low_threshold >> 8);
+  AP3216C_WriteReg(AP3216C_ALS_HIGH_THRESHOLD7_0, (high_threshold & 0xff));
+  AP3216C_WriteReg(AP3216C_ALS_HIGH_THRESHOLD15_8, high_threshold >> 8);
 }
 
 /**
@@ -104,7 +105,7 @@ void AP3216C_Set_PS_Threshold(uint16_t low_threshold, uint16_t high_threshold)
   * @param   
   * @retval  
   */
-void AP3216C_INT_Config(void)
+static void AP3216C_INT_Config(void)
 {
   GPIO_InitTypeDef GPIO_InitStructure; 
 
@@ -143,12 +144,12 @@ uint8_t AP3216C_Get_INTStatus(void)
 void AP3216C_Init(void)
 {
   AP3216C_WriteReg(AP3216C_SYS_CONFIG, 0x00);//关闭所有功能
-  AP3216C_WriteReg(AP3216C_SYS_CONFIG, AP3216C_SW_RST_BIT);//复位
+  AP3216C_Reset();//复位
   HAL_Delay(10);//复位后一定要延时10ms及以上，否则会出错
-  AP3216C_WriteReg(AP3216C_SYS_CONFIG, AP3216C_ALS_PS_IR_ACTIVE_BIT);//开启所有功能
+  AP3216C_WriteReg(AP3216C_SYS_CONFIG, AP3216C_MODE_ALS_AND_PS);//开启所有功能
 //  Delay(100);
-  AP3216C_Set_ALS_Threshold(100, 1000);//环境光下限100，上限1000，超限触发中断
-  AP3216C_Set_PS_Threshold(120, 600);//接近值下限120，上限600，超限触发中断
+  AP3216C_Set_ALS_Threshold(10, 1000);//环境光下限10，上限1000，超限触发中断
+  AP3216C_Set_PS_Threshold(200, 400);//接近值下限200，上限400，超限触发中断
   AP3216C_INT_Config();
 }
 
@@ -161,25 +162,25 @@ float AP3216C_ReadALS(void)
 {
   uint8_t temp, buf[2];
   uint16_t ALS_RAW;
-  float ALS_Data;
+  float ALS_Data = 0.0;
   
   AP3216C_ReadData(AP3216C_ALS_DATA_LOW, buf, 2);
   ALS_RAW = (buf[1] << 8) | buf[0];
     
   AP3216C_ReadData(AP3216C_ALS_CONFIG, &temp, 1);
-  if((temp >> 4) == AP3216C_ALS_RESOLUTION_036LUX_BIT)
+  if((temp >> 4) == AP3216C_ALS_RANGE_20661)
   {
     ALS_Data = ALS_RAW * 0.36;
   }
-  else if((temp >> 4) == AP3216C_ALS_RESOLUTION_0089LUX_BIT)
+  else if((temp >> 4) == AP3216C_ALS_RANGE_5162)
   {
     ALS_Data = ALS_RAW * 0.089;
   }
-  else if((temp >> 4) == AP3216C_ALS_RESOLUTION_0022LUX_BIT)
+  else if((temp >> 4) == AP3216C_ALS_RANGE_1291)
   {
     ALS_Data = ALS_RAW * 0.022;
   }
-  else if((temp >> 4) == AP3216C_ALS_RESOLUTION_00056LUX_BIT)
+  else if((temp >> 4) == AP3216C_ALS_RANGE_323)
   {
     ALS_Data = ALS_RAW * 0.0056;
   }
@@ -194,23 +195,24 @@ float AP3216C_ReadALS(void)
 uint16_t AP3216C_ReadPS(void)
 {
   uint8_t buf[2];
-  uint16_t proximity;
+  uint16_t PS_Data;
+  uint16_t proximity = 0;
   
   AP3216C_ReadData(AP3216C_PS_DATA_LOW, buf, 2);
+  PS_Data = (buf[1] << 8) + buf[0];
   
-  if((buf[0] >> 6) || (buf[1] >> 6 ))
+  if(1 == ((PS_Data >> 6) & 0x01 || (PS_Data >> 14) & 0x01))
   {
-    return proximity = 0xFFFF;//红外太强时接近传感器无效，返回0xFFFF
+    return PS_Data = 55555;//红外太强时接近传感器无效，返回55555
   }
   else
   {
-    buf[0] = buf[0] & 0x0F; // PS Data LOW 4 bits
-    buf[1] = buf[1] & 0x3F; // PS Data HIGH 6 bits
-    proximity = (buf[1] << 4) | buf[0];
-    proximity |= buf[1] >> 7;//最高位表示对象的位置，0表示远离，1表示靠近
+    proximity = (PS_Data & 0x000f) + (((PS_Data >> 8) & 0x3f) << 4);
+    proximity |= PS_Data & 0x8000;//最高位表示对象的位置，0表示远离，1表示接近
     
     return proximity;
   }
+//  return PS_Data;
 }
 
 /**
@@ -224,8 +226,8 @@ uint16_t AP3216C_ReadIR(void)
   uint16_t IR_Data;
   
   AP3216C_ReadData(AP3216C_IR_DATA_LOW, buf, 2);
-  buf[0] = buf[0] & 0x03; // IR Data LOW 2 bits
-  IR_Data = (buf[1] << 2) | buf[0];
+  IR_Data = (buf[1] << 8) + buf[0];
+  IR_Data = (IR_Data & 0x0003) + ((IR_Data >> 8) & 0xFF);
   
   return IR_Data;
 }
