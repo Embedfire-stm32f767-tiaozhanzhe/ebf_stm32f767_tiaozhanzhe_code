@@ -13,7 +13,7 @@
 #define AP3216C_IR_DATA_HIGH            0x0B
 #define AP3216C_ALS_DATA_LOW            0x0C
 #define AP3216C_ALS_DATA_HIGH           0x0D
-#define AP3216C_PS_DATA_LOW             0x0C
+#define AP3216C_PS_DATA_LOW             0x0E
 #define AP3216C_PS_DATA_HIGH            0x0F
 
 #define AP3216C_ALS_CONFIG              0x10
