@@ -176,9 +176,6 @@ void SystemInit(void)
 
   /* Disable all interrupts */
   RCC->CIR = 0x00000000;
-  
-  /*初始化SDRAM模块*/
-  SystemInit_ExtMemCtl();
 	
   /* Configure the Vector Table location add offset address ------------------*/
 #ifdef VECT_TAB_SRAM
@@ -274,14 +271,6 @@ void SystemCoreClockUpdate(void)
 
 /**
   * @}
-  */
-
-/**
-  * @brief  初始化外部SDRAM
-  *         在SystemInit函数中调用，即在跳转到main函数之前被调用，具体见startup_stm32f7xx.s
-  *         SDRAM可以用作程序内存(包括堆栈)
-  * @param  None
-  * @retval None
   */
 void SystemInit_ExtMemCtl(void)
 {

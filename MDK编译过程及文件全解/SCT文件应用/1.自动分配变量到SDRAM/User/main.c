@@ -44,25 +44,23 @@ int main(void)
 {
 	uint32_t inerTestValue =10;
 	
-    /* 系统时钟初始化成216 MHz */
-    SystemClock_Config();
-    /* LED 端口初始化 */
-    LED_GPIO_Config();	 
-
-    /* 初始化串口 */
-    DEBUG_USART_Config();
+	/* 系统时钟初始化成216 MHz */
+	SystemClock_Config();
+	/* LED 端口初始化 */
+	LED_GPIO_Config();	 
+	/* 初始化串口 */
+	DEBUG_USART_Config();
 
 	printf("\r\nSCT文件应用——自动分配变量到SDRAM实验\r\n");
 
 	printf("\r\n使用“	uint32_t inerTestValue =10; ”语句定义的局部变量：\r\n");
 	printf("结果：它的地址为：0x%x,变量值为：%d\r\n",(uint32_t)&inerTestValue,inerTestValue);
 
-	printf("\r\n使用“uint32_t testValue  =7 ;”语句定义的全局变量：\r\n");
+	printf("\r\n使用“uint32_t testValue  =0 ;”语句定义的全局变量：\r\n");
 	printf("结果：它的地址为：0x%x,变量值为：%d\r\n",(uint32_t)&testValue,testValue);
 
-	printf("\r\n使用“uint32_t testValue2  =0 ; ”语句定义的全局变量：\r\n");
+	printf("\r\n使用“uint32_t testValue2  =7 ; ”语句定义的全局变量：\r\n");
 	printf("结果：它的地址为：0x%x,变量值为：%d\r\n",(uint32_t)&testValue2,testValue2);
-
 
 	printf("\r\n使用“uint8_t testGrup[100]  ={0};”语句定义的全局数组：\r\n");
 	printf("结果：它的地址为：0x%x,变量值为：%d,%d,%d\r\n",(uint32_t)&testGrup,testGrup[0],testGrup[1],testGrup[2]);
@@ -94,8 +92,7 @@ int main(void)
 		printf("\r\n使用malloc动态分配变量出错！！！\r\n");	
 	}
   /*蓝灯亮，表示正在读写SDRAM测试*/
-  LED_BLUE; 
-	
+  LED_BLUE;
 
   while(1); 	
 }

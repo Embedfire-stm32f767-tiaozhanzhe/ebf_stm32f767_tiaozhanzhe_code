@@ -8,13 +8,12 @@
   ******************************************************************************
   * @attention
   *
-  * 实验平台:秉火  STM32 F746 开发板  
+  * 实验平台:秉火  STM32 F767 开发板  
   * 论坛    :http://www.firebbs.cn
   * 淘宝    :http://firestm32.taobao.com
   *
   ******************************************************************************
   */
-  
 #include "stm32f7xx.h"
 #include "./led/bsp_led.h"
 #include "./usart/bsp_debug_usart.h"
@@ -36,8 +35,6 @@ uint32_t testValue __EXRAM =7 ;
 //定义变量到SRAM
 uint32_t testValue2  =7 ;
 
-
-
 //定义数组到SDRAM
 uint8_t testGrup[3] __EXRAM ={1,2,3};
 //定义数组到SRAM
@@ -52,14 +49,13 @@ uint8_t testGrup2[3] ={1,2,3};
 int main(void)
 {
 	uint32_t inerTestValue =10;
-	
-    /* 系统时钟初始化成216 MHz */
-    SystemClock_Config();
-    /* LED 端口初始化 */
-    LED_GPIO_Config();	 
 
-    /* 初始化串口 */
-    DEBUG_USART_Config();
+  /* 系统时钟初始化成216 MHz */
+  SystemClock_Config();
+  /* LED 端口初始化 */
+  LED_GPIO_Config();	 
+  /* 初始化串口 */
+  DEBUG_USART_Config();
 
 	printf("\r\nSCT文件应用——自动分配变量到SDRAM实验\r\n");
 
@@ -101,12 +97,11 @@ int main(void)
 	else
 	{
 		printf("\r\n使用malloc动态分配变量出错！！！\r\n");	
+		LED_RED;
 	}
-
   /*蓝灯亮*/
   LED_BLUE; 
 	
-
   while(1); 	
 }
 

@@ -6,7 +6,7 @@
 
 
 
-#define IS42S16400J_SIZE 0x800000  //400000*16bits = 0x800000  ，8M字节
+#define W9825G6KH_SIZE 0x2000000  //2000000*16bits = 0x2000000  ，32M字节
 
 
 /*SDRAM 的bank选择*/  
