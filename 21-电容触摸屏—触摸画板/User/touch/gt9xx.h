@@ -49,13 +49,32 @@ struct i2c_msg {
 	uint8_t *buf;		/*存储读写数据的指针	*/
 };
 
+/** 
+  * @brief 触摸屏参数
+  */
+typedef struct
+{
+  /*根据触摸屏类型配置*/
+  uint16_t max_width;  //触点最大值,高
+  uint16_t max_height;  //触点最大值，宽
+
+  uint16_t config_reg_addr;  	//不同类型的触摸ic配置寄存器地址不同
+
+}TOUCH_PARAM_TypeDef;
 
 typedef enum 
 {
 	GT9157=0,
 	GT911=1,
+  GT5688=2,
 }TOUCH_IC;
 
+extern TOUCH_IC touchIC;
+extern const TOUCH_PARAM_TypeDef touch_param[];
+
+// STEP_3(optional): Specify your special config info if needed
+#define GTP_MAX_HEIGHT   touch_param[touchIC].max_height
+#define GTP_MAX_WIDTH    touch_param[touchIC].max_width
 
 //以下配置已改成数组，在c文件中
 //*************************** PART2:TODO define **********************************
@@ -112,8 +131,8 @@ typedef enum
 
 
 // STEP_3(optional): Specify your special config info if needed
-#define GTP_MAX_HEIGHT   480
-#define GTP_MAX_WIDTH    800
+//#define GTP_MAX_HEIGHT   480
+//#define GTP_MAX_WIDTH    800
 #define GTP_INT_TRIGGER  0
 #define GTP_MAX_TOUCH         5
 
