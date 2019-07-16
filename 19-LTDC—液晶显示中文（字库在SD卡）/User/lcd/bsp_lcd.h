@@ -86,7 +86,7 @@ typedef enum
 #define LCD_COLOR_TRANSPARENT   ((uint32_t)0xFF000000)
 
 /** 
-  * @brief LCD default font 
+  * @brief LCD Ä¬ÈÏ×ÖÌå
   */ 
 #define LCD_DEFAULT_FONT        Font24 
 
@@ -277,6 +277,8 @@ void     LCD_DrawPixel(uint16_t Xpos, uint16_t Ypos, uint32_t pixel);
 void     LCD_Clear(uint32_t Color);
 void     LCD_ClearLine(uint32_t Line);
 void     LCD_DisplayStringLine(uint16_t Line, uint8_t *ptr);
+void 	 LCD_DisplayStringLine_EN_CH(uint16_t Line, uint8_t *ptr);
+
 void     LCD_DisplayStringAt(uint16_t Xpos, uint16_t Ypos, uint8_t *Text, Text_AlignModeTypdef Mode);
 void     LCD_DisplayChar(uint16_t Xpos, uint16_t Ypos, uint8_t Ascii);
 

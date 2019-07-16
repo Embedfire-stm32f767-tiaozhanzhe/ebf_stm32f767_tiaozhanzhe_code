@@ -19,55 +19,17 @@
 #include "./led/bsp_led.h" 
 #include "./usart/bsp_usart.h"
 #include "./key/bsp_key.h" 
+#include "./sdram/bsp_sdram.h" 
+#include "./lcd/bsp_lcd.h"
 
 /* FatFs includes component */
 #include "ff.h"
 #include "ff_gen_drv.h"
 #include "sd_diskio.h"
-/**
-  ******************************************************************************
-  *                              定义变量
-  ******************************************************************************
-  */
-char SDPath[4]; /* SD逻辑驱动器路径 */
-FATFS fs;													/* FatFs文件系统对象 */
-FIL fnew;													/* 文件对象 */
-FRESULT res_sd;                /* 文件操作结果 */
-UINT fnum;            			  /* 文件成功读写数量 */
-BYTE ReadBuffer[1024]={0};        /* 读缓冲区 */
-BYTE WriteBuffer[] =              /* 写缓冲区*/
-"欢迎使用野火STM32 F767开发板 今天是个好日子，新建文件系统测试文件\r\n";  
 
-static void SystemClock_Config(void);
-extern FATFS flash_fs;
-extern Diskio_drvTypeDef  SD_Driver;
-/**
-	**************************************************************
-	* Description : 初始化WiFi模块使能引脚，并禁用WiFi模块
-	* Argument(s) : none.
-	* Return(s)   : none.
-	**************************************************************
-	*/
-static void WIFI_PDN_INIT(void)
-{
-	/*定义一个GPIO_InitTypeDef类型的结构体*/
-	GPIO_InitTypeDef GPIO_InitStruct;
-	/*使能引脚时钟*/	
-	__HAL_RCC_GPIOB_CLK_ENABLE();
-	/*选择要控制的GPIO引脚*/															   
-	GPIO_InitStruct.Pin = GPIO_PIN_13;	
-	/*设置引脚的输出类型为推挽输出*/
-	GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;      
-	/*设置引脚为上拉模式*/
-	GPIO_InitStruct.Pull  = GPIO_PULLUP;
-	/*设置引脚速率为高速 */   
-	GPIO_InitStruct.Speed = GPIO_SPEED_FAST; 
-	/*调用库函数，使用上面配置的GPIO_InitStructure初始化GPIO*/
-	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);	
-	/*禁用WiFi模块*/
-	HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,GPIO_PIN_RESET);  
-}
+void Delay(__IO uint32_t nCount); 
 
+void LCD_Test(void);
 /**
   * @brief  主函数
   * @param  无
@@ -75,115 +37,208 @@ static void WIFI_PDN_INIT(void)
   */
 int main(void)
 {
-	/* 配置系统时钟为216 MHz */
+    /* 系统时钟初始化成216 MHz */
     SystemClock_Config();
-	/*禁用WiFi模块*/
-	WIFI_PDN_INIT();
-	/* 初始化LED */
-	LED_GPIO_Config();	
-	LED_BLUE;	
-	/* 初始化调试串口，一般为串口1 */
-	UARTx_Config();	
-    printf("****** 这是一个SD卡文件系统实验 ******\r\n");
-    //链接驱动器，创建盘符
-    FATFS_LinkDriver(&SD_Driver, SDPath);
-	//在外部SD卡挂载文件系统，文件系统挂载时会对SD卡初始化
-	res_sd = f_mount(&fs,"0:",1);
+    /* LED 端口初始化 */
+    LED_GPIO_Config();	 
+    /* LCD 端口初始化 */ 
+    LCD_Init();
+    /* LCD 第一层初始化 */ 
+    LCD_LayerInit(0, LCD_FB_START_ADDRESS,ARGB8888);
+	/* LCD 第二层初始化 */ 
+    LCD_LayerInit(1, LCD_FB_START_ADDRESS+(LCD_GetXSize()*LCD_GetYSize()*4),ARGB8888);
+    /* 使能LCD，包括开背光 */ 
+    LCD_DisplayOn(); 
+
+    /* 选择LCD第一层 */
+    LCD_SelectLayer(0);
+
+    /* 第一层清屏，显示全黑 */ 
+    LCD_Clear(LCD_COLOR_BLACK);  
+
+    /* 选择LCD第二层 */
+    LCD_SelectLayer(1);
+
+    /* 第二层清屏，显示全黑 */ 
+    LCD_Clear(LCD_COLOR_TRANSPARENT);
+
+    /* 配置第一和第二层的透明度,最小值为0，最大值为255*/
+    LCD_SetTransparency(0, 255);
+    LCD_SetTransparency(1, 0);
 	
-	/*----------------------- 格式化测试 ---------------------------*/  
-	/* 如果没有文件系统就格式化创建创建文件系统 */
-	if(res_sd == FR_NO_FILESYSTEM)
-	{
-		printf("》SD卡还没有文件系统，即将进行格式化...\r\n");
-		/* 格式化 */
-		res_sd=f_mkfs("0:",0,0);							
-		
-		if(res_sd == FR_OK)
-		{
-			printf("》SD卡已成功格式化文件系统。\r\n");
-			/* 格式化后，先取消挂载 */
-			res_sd = f_mount(NULL,"0:",1);			
-			/* 重新挂载	*/			
-			res_sd = f_mount(&fs,"0:",1);
-		}
-		else
-		{
-			LED_RED;
-			printf("《《格式化失败。》》\r\n");
-			while(1);
-		}
-	}
-	else if(res_sd!=FR_OK)
-	{
-		printf("！！SD卡挂载文件系统失败。(%d)\r\n",res_sd);
-		printf("！！可能原因：SD卡初始化不成功。\r\n");
-		while(1);
-	}
-	else
-	{
-		printf("》文件系统挂载成功，可以进行读写测试\r\n");
-	}
-  
-	/*----------------------- 文件系统测试：写测试 -----------------------------*/
-	/* 打开文件，如果文件不存在则创建它 */
-	printf("\r\n****** 即将进行文件写入测试... ******\r\n");	
-	res_sd = f_open(&fnew, "0:FatFs读写测试文件.txt",FA_CREATE_ALWAYS | FA_WRITE );
-	if ( res_sd == FR_OK )
-	{
-		printf("》打开/创建FatFs读写测试文件.txt文件成功，向文件写入数据。\r\n");
-    /* 将指定存储区内容写入到文件内 */
-		res_sd=f_write(&fnew,WriteBuffer,sizeof(WriteBuffer),&fnum);
-    if(res_sd==FR_OK)
+    while(1)
     {
-      printf("》文件写入成功，写入字节数据：%d\n",fnum);
-      printf("》向文件写入的数据为：\r\n%s\r\n",WriteBuffer);
+      LCD_Test(); 
     }
-    else
-    {
-      printf("！！文件写入失败：(%d)\n",res_sd);
-    }    
-		/* 不再读写，关闭文件 */
-    f_close(&fnew);
-	}
-	else
-	{	
-		LED_RED;
-		printf("！！打开/创建文件失败。\r\n");
-	}
+}
+
+/*用于测试各种液晶的函数*/
+void LCD_Test(void)
+{
+	/*演示显示变量*/
+	static uint8_t testCNT = 0;	
+	char dispBuff[100];
 	
-/*------------------- 文件系统测试：读测试 ------------------------------------*/
-	printf("****** 即将进行文件读取测试... ******\r\n");
-	res_sd = f_open(&fnew, "0:FatFs读写测试文件.txt", FA_OPEN_EXISTING | FA_READ); 	 
-	if(res_sd == FR_OK)
-	{
-		LED_GREEN;
-		printf("》打开文件成功。\r\n");
-		res_sd = f_read(&fnew, ReadBuffer, sizeof(ReadBuffer), &fnum); 
-    if(res_sd==FR_OK)
-    {
-      printf("》文件读取成功,读到字节数据：%d\r\n",fnum);
-      printf("》读取得的文件数据为：\r\n%s \r\n", ReadBuffer);	
-    }
-    else
-    {
-      printf("！！文件读取失败：(%d)\n",res_sd);
-    }		
-	}
-	else
-	{
-		LED_RED;
-		printf("！！打开文件失败。\r\n");
-	}
-	/* 不再读写，关闭文件 */
-	f_close(&fnew);	
-  
-	/* 不再使用文件系统，取消挂载文件系统 */
-	f_mount(NULL,"0:",1);
-  
-	/* 操作完成，停机 */
-	while(1)
-	{
-	}
+    /* 选择LCD第一层 */
+    LCD_SelectLayer(0);
+	
+	/* 清屏，显示全黑 */
+	LCD_Clear(LCD_COLOR_BLACK);	
+	/*设置字体颜色及字体的背景颜色(此处的背景不是指LCD的背景层！注意区分)*/
+	LCD_SetColors(LCD_COLOR_WHITE,LCD_COLOR_BLACK);
+	/*选择字体*/
+	LCD_SetFont(&LCD_DEFAULT_FONT);
+
+    LCD_DisplayStringLine_EN_CH(1,(uint8_t* )"(野火5.0英寸液晶屏参数)");
+    LCD_DisplayStringLine_EN_CH(2,(uint8_t* )"分辨率:800x480 像素");
+    LCD_DisplayStringLine_EN_CH(3,(uint8_t* )"触摸屏:5点电容触摸屏");
+    LCD_DisplayStringLine_EN_CH(4,(uint8_t* )"使用STM32-LTDC直接驱动,无需外部液晶驱动器");
+    LCD_DisplayStringLine_EN_CH(5,(uint8_t* )"支持RGB888/565,24位数据总线");
+    LCD_DisplayStringLine_EN_CH(6,(uint8_t* )"触摸屏使用IIC总线驱动");
+
+    /*使用c标准库把变量转化成字符串*/
+    sprintf(dispBuff,"显示变量例子: testCount = %d ",testCNT);
+	LCD_ClearLine(7);
+	/*设置字体颜色及字体的背景颜色(此处的背景不是指LCD的背景层！注意区分)*/
+	LCD_SetColors(LCD_COLOR_WHITE,LCD_COLOR_BLACK);
+	/*然后显示该字符串即可，其它变量也是这样处理*/
+	LCD_DisplayStringLine_EN_CH(7,(uint8_t* )dispBuff);
+
+
+	/* 画直线 */
+	LCD_SetTextColor(LCD_COLOR_BLUE);
+
+	LCD_ClearLine(8);
+    LCD_DisplayStringLine_EN_CH(8,(uint8_t* )"画线:");
+	LCD_SetColors(LCD_COLOR_RED,LCD_COLOR_BLACK);
+	LCD_DrawLine(50,250,750,250);  
+	LCD_DrawLine(50,300,750,300);
+
+	LCD_SetColors(LCD_COLOR_GREEN,LCD_COLOR_BLACK);
+	LCD_DrawLine(300,250,400,400);  
+	LCD_DrawLine(600,250,600,400);
+
+	Delay(0xFFFFFF);
+
+	LCD_SetColors(LCD_COLOR_BLACK,LCD_COLOR_BLACK);
+	LCD_FillRect(0,200,LCD_PIXEL_WIDTH,LCD_PIXEL_HEIGHT-200);
+
+
+	/*画矩形*/
+	LCD_SetTextColor(LCD_COLOR_BLUE);
+	LCD_ClearLine(8);
+    LCD_DisplayStringLine_EN_CH(8,(uint8_t* )"画矩形:");
+	
+	LCD_SetColors(LCD_COLOR_RED,LCD_COLOR_BLACK);
+	LCD_DrawRect(200,250,200,100);
+
+	LCD_SetColors(LCD_COLOR_GREEN,LCD_COLOR_BLACK);
+	LCD_DrawRect(350,250,200,50);
+
+	LCD_SetColors(LCD_COLOR_BLUE,LCD_COLOR_BLACK);
+	LCD_DrawRect(200,350,50,200);
+
+	Delay(0xFFFFFF);
+
+
+	LCD_SetColors(LCD_COLOR_BLACK,LCD_COLOR_BLACK);
+	LCD_FillRect(0,200,LCD_PIXEL_WIDTH,LCD_PIXEL_HEIGHT-200);
+
+
+	/*填充矩形*/
+	LCD_SetTextColor(LCD_COLOR_BLUE);
+	LCD_ClearLine(8);
+    LCD_DisplayStringLine_EN_CH(8,(uint8_t* )"填充矩形:");
+
+	LCD_SetColors(LCD_COLOR_RED,LCD_COLOR_BLACK);
+	LCD_FillRect(200,250,200,100);
+
+	LCD_SetColors(LCD_COLOR_GREEN,LCD_COLOR_BLACK);
+	LCD_FillRect(350,250,200,50);
+
+	LCD_SetColors(LCD_COLOR_BLUE,LCD_COLOR_BLACK);
+	LCD_FillRect(200,350,50,200);
+
+	Delay(0xFFFFFF);
+
+	LCD_SetColors(LCD_COLOR_BLACK,LCD_COLOR_BLACK);
+	LCD_FillRect(0,200,LCD_PIXEL_WIDTH,LCD_PIXEL_HEIGHT-200);
+
+	/* 画圆 */
+	LCD_SetTextColor(LCD_COLOR_BLUE);
+	LCD_ClearLine(8);
+    LCD_DisplayStringLine_EN_CH(8,(uint8_t* )"画圆:");
+
+	LCD_SetColors(LCD_COLOR_RED,LCD_COLOR_RED);
+	LCD_DrawCircle(200,350,50);
+
+	LCD_SetColors(LCD_COLOR_GREEN,LCD_COLOR_GREEN);
+	LCD_DrawCircle(350,350,75);
+
+	Delay(0xFFFFFF);
+
+	LCD_SetColors(LCD_COLOR_BLACK,LCD_COLOR_BLACK);
+	LCD_FillRect(0,200,LCD_PIXEL_WIDTH,LCD_PIXEL_HEIGHT-200);
+
+
+	/*填充圆*/
+	LCD_SetTextColor(LCD_COLOR_BLUE);
+	LCD_ClearLine(8);
+    LCD_DisplayStringLine_EN_CH(8,(uint8_t* )"填充圆:");
+
+	LCD_SetColors(LCD_COLOR_RED,LCD_COLOR_BLACK);
+	LCD_FillCircle(300,350,50);
+
+	LCD_SetColors(LCD_COLOR_GREEN,LCD_COLOR_BLACK);
+	LCD_FillCircle(450,350,75);
+
+	Delay(0xFFFFFF);
+
+	LCD_SetColors(LCD_COLOR_BLACK,LCD_COLOR_BLACK);
+	LCD_FillRect(0,200,LCD_PIXEL_WIDTH,LCD_PIXEL_HEIGHT-200);
+
+	LCD_ClearLine(8);
+	
+	/*透明效果 前景层操作*/
+	LCD_SetTextColor(LCD_COLOR_BLUE);
+	LCD_ClearLine(8);
+	LCD_DisplayStringLine_EN_CH(8,(uint8_t* )"双层透明效果：");
+	
+	/*设置前景层不透明度*/
+	LCD_SetTransparency(1, 128);
+
+    /* 选择LCD第一层 */
+    LCD_SelectLayer(1);
+	
+	/* 清屏，显示全黑 */
+	LCD_Clear(LCD_COLOR_BLACK);	
+	/*在前景画一个红色圆*/
+	LCD_SetColors(LCD_COLOR_RED,LCD_COLOR_TRANSPARENT);
+	LCD_FillCircle(400,350,75);
+	
+	Delay(0xFFFFFF);
+	
+	/*透明效果 背景层操作*/
+
+	/* 选择LCD背景层 */
+	LCD_SelectLayer(0);	
+	LCD_Clear(LCD_COLOR_BLACK);		
+	/*设置背景层不透明*/
+	LCD_SetTransparency(1, 0);
+	
+
+	/*在背景画一个绿色圆*/
+	LCD_SetColors(LCD_COLOR_GREEN,LCD_COLOR_BLACK);
+	LCD_FillCircle(450,350,75);
+	
+	/*在背景画一个蓝色圆*/
+	LCD_SetColors(LCD_COLOR_BLUE,LCD_COLOR_BLACK);
+	LCD_FillCircle(350,350,75);
+	
+	Delay(0xFFFFFF);
+	LCD_SetColors(LCD_COLOR_BLACK,LCD_COLOR_BLACK);
+	LCD_FillRect(0,200,LCD_PIXEL_WIDTH,LCD_PIXEL_HEIGHT-200);
+
 }
 
 /**
@@ -208,52 +263,57 @@ int main(void)
   */
 void SystemClock_Config(void)
 {
-  RCC_ClkInitTypeDef RCC_ClkInitStruct;
-  RCC_OscInitTypeDef RCC_OscInitStruct;
-  HAL_StatusTypeDef ret = HAL_OK;
+	RCC_ClkInitTypeDef RCC_ClkInitStruct;
+	RCC_OscInitTypeDef RCC_OscInitStruct;
+	HAL_StatusTypeDef ret = HAL_OK;
 
-  /* 使能HSE，配置HSE为PLL的时钟源，配置PLL的各种分频因子M N P Q 
+	/* 使能HSE，配置HSE为PLL的时钟源，配置PLL的各种分频因子M N P Q 
 	 * PLLCLK = HSE/M*N/P = 25M / 25 *432 / 2 = 216M
 	 */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 25;
-  RCC_OscInitStruct.PLL.PLLN = 432;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = 9;
-  
-  ret = HAL_RCC_OscConfig(&RCC_OscInitStruct);
-  if(ret != HAL_OK)
-  {
-    while(1) { ; }
-  }
-  
-  /* 激活 OverDrive 模式以达到216M频率  */  
-  ret = HAL_PWREx_EnableOverDrive();
-  if(ret != HAL_OK)
-  {
-    while(1) { ; }
-  }
-  
-  /* 选择PLLCLK作为SYSCLK，并配置 HCLK, PCLK1 and PCLK2 的时钟分频因子 
+	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+	RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+	RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+	RCC_OscInitStruct.PLL.PLLM = 25;
+	RCC_OscInitStruct.PLL.PLLN = 432;
+	RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+	RCC_OscInitStruct.PLL.PLLQ = 9;
+
+	ret = HAL_RCC_OscConfig(&RCC_OscInitStruct);
+	if(ret != HAL_OK)
+	{
+		while(1) { ; }
+	}
+
+	/* 激活 OverDrive 模式以达到216M频率  */  
+	ret = HAL_PWREx_EnableOverDrive();
+	if(ret != HAL_OK)
+	{
+		while(1) { ; }
+	}
+
+	/* 选择PLLCLK作为SYSCLK，并配置 HCLK, PCLK1 and PCLK2 的时钟分频因子 
 	 * SYSCLK = PLLCLK     = 216M
 	 * HCLK   = SYSCLK / 1 = 216M
 	 * PCLK2  = SYSCLK / 2 = 108M
 	 * PCLK1  = SYSCLK / 4 = 54M
 	 */
-  RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;  
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2; 
-  
-  ret = HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_7);
-  if(ret != HAL_OK)
-  {
-    while(1) { ; }
-  }  
+	RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
+	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+	RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;  
+	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2; 
+
+	ret = HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_7);
+	if(ret != HAL_OK)
+	{
+		while(1) { ; }
+	}  
+}
+
+void Delay(__IO uint32_t nCount)	 //简单的延时函数
+{
+	for(; nCount != 0; nCount--);
 }
 /*********************************************END OF FILE**********************/
 

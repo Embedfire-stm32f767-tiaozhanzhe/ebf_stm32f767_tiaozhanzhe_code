@@ -291,7 +291,7 @@ static void SDRAM_InitSequence(void)
   /* (7.8125 us x Freq) - 20 */
 	/* Step 6: Set the refresh rate counter */
   /* Set the device refresh rate */
-  HAL_SDRAM_ProgramRefreshRate(&sdramHandle, 824); 
+  HAL_SDRAM_ProgramRefreshRate(&sdramHandle, 1536); 
 //  FMC_SetRefreshCount(1386);
 //  /* ∑¢ÀÕ…œ ˆ√¸¡Ó*/
 //  while(FMC_GetFlagStatus(FMC_BANK_SDRAM, FMC_FLAG_Busy) != RESET)
