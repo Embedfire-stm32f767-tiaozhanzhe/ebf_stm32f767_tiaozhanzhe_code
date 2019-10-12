@@ -174,7 +174,7 @@ void I2C_ResetChip(void)
 	Delay(0x0FFFFF);
 
 	/*拉高一段时间，进行初始化*/
-	HAL_GPIO_WritePin (GTP_RST_GPIO_PORT,GTP_RST_GPIO_PIN,GPIO_PIN_SET);
+//	HAL_GPIO_WritePin (GTP_RST_GPIO_PORT,GTP_RST_GPIO_PIN,GPIO_PIN_SET);
 	Delay(0x0FFFFF);
 
 	  /*初始化GT9157,rst为高电平，int为低电平，则gt9157的设备地址被配置为0xBA*/

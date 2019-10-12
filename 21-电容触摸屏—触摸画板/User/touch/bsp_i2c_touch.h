@@ -8,7 +8,7 @@
 #define SOFT_IIC      0
 
 /*设定使用的电容屏IIC设备地址*/
-#define GTP_ADDRESS            0xBA
+#define GTP_ADDRESS            0xBA//0x28//
 
 #define I2CT_FLAG_TIMEOUT         ((uint32_t)0x1000)
 #define I2CT_LONG_TIMEOUT         ((uint32_t)(10 * I2CT_FLAG_TIMEOUT))

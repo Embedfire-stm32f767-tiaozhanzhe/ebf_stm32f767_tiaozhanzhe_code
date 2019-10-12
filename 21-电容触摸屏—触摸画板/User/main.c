@@ -37,6 +37,8 @@ int main(void)
     SystemClock_Config();
     /* LED 端口初始化 */
     LED_GPIO_Config();	
+    DEBUG_USART_Config();
+  printf("\r\n野火STM3F767 触摸画板测试例程\r\n");
     /* 初始化触摸屏 */
     GTP_Init_Panel(); 	
     /* LCD 端口初始化 */ 
@@ -55,7 +57,7 @@ int main(void)
     /* 配置透明度,最小值为0，最大值为255*/
 
     LCD_SetTransparency(1, 255);
-	printf("\r\n野火STM3F767 触摸画板测试例程\r\n");
+	
 	/*调用画板函数*/
 	Palette_Init();
 
