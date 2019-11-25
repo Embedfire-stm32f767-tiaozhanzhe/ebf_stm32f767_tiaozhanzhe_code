@@ -21,10 +21,8 @@
 #include "./lcd/bsp_lcd.h"
 #include <stdlib.h>
 #include "main.h"
-#include "./touch/gt9xx.h"
 #include "./touch/palette.h"
 #include "./touch/bsp_touch_gtxx.h"
-#include "./systick/bsp_SysTick.h"
 
 void Delay(__IO uint32_t nCount); 
 
