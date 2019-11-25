@@ -758,19 +758,14 @@
               <FilePath>..\..\User\touch\bsp_i2c_touch.c</FilePath>
             </File>
             <File>
-              <FileName>gt9xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\touch\gt9xx.c</FilePath>
-            </File>
-            <File>
               <FileName>palette.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\touch\palette.c</FilePath>
             </File>
             <File>
-              <FileName>core_delay.c</FileName>
+              <FileName>bsp_touch_gtxx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\User\delay\core_delay.c</FilePath>
+              <FilePath>..\..\User\touch\bsp_touch_gtxx.c</FilePath>
             </File>
           </Files>
         </Group>

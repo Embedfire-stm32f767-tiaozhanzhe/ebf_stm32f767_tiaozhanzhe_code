@@ -17,6 +17,7 @@
 
 #include "./touch/palette.h"
 #include "./touch/gt9xx.h"
+#include "./touch/bsp_touch_gtxx.h"
 #include "./lcd/bsp_lcd.h"
 
 extern uint32_t  ActiveLayer;

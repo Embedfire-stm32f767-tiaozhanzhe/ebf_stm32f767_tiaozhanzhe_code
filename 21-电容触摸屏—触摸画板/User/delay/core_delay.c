@@ -54,6 +54,7 @@
   */
 HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 {
+    (void)TickPriority;    // 防止编译器包警告
     /* 使能DWT外设 */
     DEM_CR |= (uint32_t)DEM_CR_TRCENA;                
 

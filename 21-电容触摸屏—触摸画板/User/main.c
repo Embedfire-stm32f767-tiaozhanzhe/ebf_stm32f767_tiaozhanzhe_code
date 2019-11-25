@@ -23,6 +23,8 @@
 #include "main.h"
 #include "./touch/gt9xx.h"
 #include "./touch/palette.h"
+#include "./touch/bsp_touch_gtxx.h"
+#include "./systick/bsp_SysTick.h"
 
 void Delay(__IO uint32_t nCount); 
 
@@ -38,12 +40,12 @@ int main(void)
     /* LED 端口初始化 */
     LED_GPIO_Config();	
     DEBUG_USART_Config();
-  printf("\r\n野火STM3F767 触摸画板测试例程\r\n");
+    printf("\r\n野火STM3F767 触摸画板测试例程\r\n");
     /* 初始化触摸屏 */
     GTP_Init_Panel(); 	
     /* LCD 端口初始化 */ 
     LCD_Init();
-	/* LCD 第二层初始化 */ 
+    /* LCD 第二层初始化 */ 
     LCD_LayerInit(1, LCD_FB_START_ADDRESS+(LCD_GetXSize()*LCD_GetYSize()*4),ARGB8888);
     /* 使能LCD，包括开背光 */ 
     LCD_DisplayOn(); 

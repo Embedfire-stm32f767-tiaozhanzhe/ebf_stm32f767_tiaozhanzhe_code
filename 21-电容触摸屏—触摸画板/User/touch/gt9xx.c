@@ -731,7 +731,7 @@ Output:
     
     config = (uint8_t *)malloc (GTP_CONFIG_MAX_LENGTH + GTP_ADDR_LENGTH);
 		
-		//根据IC的型号指向不同的配置
+*		//根据IC的型号指向不同的配置
 //根据IC的型号指向不同的配置
 		if(touchIC == GT9157)
 		{

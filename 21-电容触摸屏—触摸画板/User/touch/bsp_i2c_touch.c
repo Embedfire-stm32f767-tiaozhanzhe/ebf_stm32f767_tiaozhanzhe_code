@@ -17,8 +17,10 @@
 
 #include "./touch/bsp_i2c_touch.h"
 #include "./touch/gt9xx.h"
+#include "./touch/bsp_touch_gtxx.h"
 #include "./usart/bsp_debug_usart.h"
 #include "./delay/core_delay.h"   
+#include "./systick/bsp_SysTick.h"
 
 /* STM32 I2C 快速模式 */
 #define I2C_Speed              400000
@@ -159,6 +161,9 @@ static void I2C_GPIO_Config(void)
 void I2C_ResetChip(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
+  
+  GTP_INT_GPIO_CLK_ENABLE();
+  GTP_RST_GPIO_CLK_ENABLE();
 
 	/*配置 INT引脚，下拉推挽输出，方便初始化 */   
 	GPIO_InitStructure.Pin = GTP_INT_GPIO_PIN;
@@ -167,14 +172,13 @@ void I2C_ResetChip(void)
 	GPIO_InitStructure.Pull  = GPIO_PULLDOWN;       //设置为下拉，方便初始化
 	HAL_GPIO_Init(GTP_INT_GPIO_PORT, &GPIO_InitStructure);
   HAL_GPIO_WritePin (GTP_INT_GPIO_PORT,GTP_INT_GPIO_PIN,GPIO_PIN_RESET);
-  
+
 	/*复位为低电平，为初始化做准备*/
 	HAL_GPIO_WritePin (GTP_RST_GPIO_PORT,GTP_RST_GPIO_PIN,GPIO_PIN_RESET);
-	HAL_Delay(10);
-
+	Delay(0x9FFFF);
 	/*拉高一段时间，进行初始化*/
 	HAL_GPIO_WritePin (GTP_RST_GPIO_PORT,GTP_RST_GPIO_PIN,GPIO_PIN_SET);
-	HAL_Delay(200);
+	Delay(0x9FFFF);
 
 	/*把INT引脚设置为浮空输入模式，以便接收触摸中断信号*/
 	GPIO_InitStructure.Pin = GTP_INT_GPIO_PIN;
@@ -293,7 +297,7 @@ static void i2c_Delay(void)
 		循环次数为30时，SCL频率 = 533KHz，  
 	 	循环次数为20时，SCL频率 = 727KHz， 
   */
-	for (i = 0; i < 10*12; i++);
+	for (i = 0; i < 10*6; i++);
 }
 
 /*
