@@ -20,6 +20,7 @@
 #include "./touch/bsp_i2c_touch.h"
 #include "./lcd/bsp_lcd.h"
 #include "./touch/palette.h"
+#include <stdlib.h>
 
 // 5寸屏GT9157驱动配置
 uint8_t CTP_CFG_GT9157[] ={ 
@@ -46,7 +47,7 @@ uint8_t CTP_CFG_GT9157[] ={
 
 // 7寸屏GT911驱动配置
 uint8_t CTP_CFG_GT911[] =  {
-  0x00,0x20,0x03,0xE0,0x01,0x05,0x0D,0x00,0x01,0x08,
+  0x66,0x20,0x03,0xE0,0x01,0x05,0x0D,0x00,0x01,0x08,
   0x28,0x0F,0x50,0x32,0x03,0x05,0x00,0x00,0x00,0x00,
   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x8A,0x2A,0x0C,
   0x45,0x47,0x0C,0x08,0x00,0x00,0x00,0x02,0x02,0x2D,
@@ -705,7 +706,7 @@ Output:
     int32_t i = 0;
     uint8_t check_sum = 0;
     int32_t retry = 0;
-    uint8_t* config;
+    uint8_t *config;
     uint8_t* cfg_info;
     uint8_t cfg_info_len  ;
 
@@ -725,6 +726,10 @@ Output:
 		
 		//获取触摸IC的型号
     GTP_Read_Version(); 
+    
+#if UPDATE_CONFIG
+    
+    config = (uint8_t *)malloc (GTP_CONFIG_MAX_LENGTH + GTP_ADDR_LENGTH);
 		
 		//根据IC的型号指向不同的配置
 //根据IC的型号指向不同的配置
@@ -751,6 +756,9 @@ Output:
 		
     memset(&config[GTP_ADDR_LENGTH], 0, GTP_CONFIG_MAX_LENGTH);
     memcpy(&config[GTP_ADDR_LENGTH], cfg_info, cfg_info_len);
+    
+    config[0] = GTP_REG_CONFIG_DATA >> 8;
+		config[1] =  GTP_REG_CONFIG_DATA & 0xff;
 		
 		cfg_num = cfg_info_len;
 		
@@ -826,7 +834,9 @@ Output:
     	    ret = GTP_I2C_Read(GTP_ADDRESS, buf, sizeof(buf));
 
     	    //版本号写入0x00后，会进行复位，复位为0x41
-    	     config[GTP_ADDR_LENGTH] = 0x41;
+//    	     config[GTP_ADDR_LENGTH] = 0x41;
+    
+          GTP_DEBUG("配置版本号是 ：%x ", buf[2]);
 
     	    for(i=0;i<cfg_num+GTP_ADDR_LENGTH;i++)
     	    {
@@ -841,8 +851,8 @@ Output:
 	    		GTP_DEBUG("Config success ! i = %d ",i);
 	}
 #endif
-	
-		
+	free(config);
+#endif
 	 /*使能中断，这样才能检测触摸数据*/
 		I2C_GTP_IRQEnable();
 	
